@@ -1,0 +1,34 @@
+name: Helm
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'helm/**'
+
+jobs:
+  helm:
+    name: Release Helm Chart
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure Git
+        run: git config --global user.email "admin@kubenav.io" && git config --global user.name "kubenav-bot"
+
+      - name: Package Helm Chart
+        run: helm package ./helm
+
+      - name: Clone Helm Repository
+        run: git clone https://github.com/kubenav/helm-repository.git
+
+      - name: Update Helm Repository
+        run: mv kubenav* ./helm-repository/ && helm repo index helm-repository/ --url https://kubenav.github.io/helm-repository/
+
+      - name: Commit Changes
+        run: cd helm-repository/ && git add . && git commit -m "Add new release for kubenav"
+
+      - name: Push Changes
+        run: cd helm-repository/ && git push https://kubenav-bot:${{ secrets.TOKEN }}@github.com/kubenav/helm-repository.git

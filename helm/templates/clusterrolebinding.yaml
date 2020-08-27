@@ -1,0 +1,16 @@
+{{- if .Values.rbac.create -}}
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "kubenav.rbacName" . }}
+  labels:
+    {{- include "kubenav.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "kubenav.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ include "kubenav.rbacName" . }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end -}}

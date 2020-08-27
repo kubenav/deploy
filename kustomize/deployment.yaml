@@ -1,0 +1,46 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubenav
+  labels:
+    app.kubernetes.io/instance: kubenav
+    app.kubernetes.io/name: kubenav
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: kubenav
+      app.kubernetes.io/name: kubenav
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: kubenav
+        app.kubernetes.io/name: kubenav
+    spec:
+      serviceAccountName: kubenav
+      containers:
+        - name: kubenav
+          image: kubenav/kubenav:560dcebf
+          imagePullPolicy: IfNotPresent
+          args:
+             - --incluster
+          ports:
+            - name: http
+              containerPort: 14122
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
