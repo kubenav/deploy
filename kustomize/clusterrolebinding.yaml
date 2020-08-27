@@ -9,6 +9,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: kubenav
+    namespace: kubenav
 roleRef:
   kind: ClusterRole
   name: kubenav

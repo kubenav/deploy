@@ -3,6 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kubenav
+  namespace: kubenav
   labels:
     app.kubernetes.io/instance: kubenav
     app.kubernetes.io/name: kubenav
