@@ -7,7 +7,7 @@ kubenav is not only available for desktop and mobile, it can also be deployed to
 You can deploy kubenav into your Kubernetes cluster via [Kustomize](https://kustomize.io):
 
 ```sh
-kubectl apply --namespace kubenav --kustomize github.com/kubenav/deploy/kustomize
+kubectl apply --kustomize github.com/kubenav/deploy/kustomize
 ```
 
 To access kubenav run the following:
