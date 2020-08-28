@@ -32,6 +32,7 @@ spec:
             - --kubeconfig=/kubenav/kubeconfig/kubeconfig
             {{- else }}
             - --incluster
+            - --incluster.name={{ .Values.deployment.clusterName }}
             {{- end }}
           ports:
             - name: http

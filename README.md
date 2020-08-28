@@ -63,6 +63,7 @@ You can deploy kubenav into your Kubernetes cluster via [Helm](https://helm.sh):
 helm repo add kubenav https://kubenav.github.io/helm-repository
 helm repo update
 
+kubectl create namespace kubenav
 helm upgrade --install --namespace kubenav kubenav kubenav/kubenav
 ```
 
@@ -72,12 +73,13 @@ helm upgrade --install --namespace kubenav kubenav kubenav/kubenav
 | ----- | ----------- | ------- |
 | `replicaCount` | Number of replicas which should be created. | `1` |
 | `image.repository` | The repository of the Docker image. | `kubenav/kubenav` |
-| `image.tag` | The tag of the Docker image which should be used. | `560dcebf` |
+| `image.tag` | The tag of the Docker image which should be used. | `4a5f72c1` |
 | `image.pullPolicy` | The pull policy for the Docker image, | `IfNotPresent` |
 | `imagePullSecrets` | Secrets which can be used to pull the Docker image. | `[]` |
 | `nameOverride` | Expand the name of the chart. | `""` |
 | `fullnameOverride` | Override the name of the app. | `""` |
 | `deployment.mode` | Set the mode how kubenav should be deployed. This must be `incluster` or `kubeconfig`. | `incluster` |
+| `deployment.clusterName` | The name which should be in the frontend, when the `incluster` mode is used. | `kubenav` |
 | `deployment.kubeconfig` | When the `kubeconfig` mode is used. This must be a base64 encoded Kubeconfig file. | `""` |
 | `rbac.create` | Create the cluster role and cluster role binding. | `true` |
 | `rbac.name` | The name of the cluster role and cluster role binding, which should be created/used by kubenav. | `kubenav` |
