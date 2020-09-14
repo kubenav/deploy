@@ -32,7 +32,10 @@ spec:
             - --kubeconfig=/kubenav/kubeconfig/kubeconfig
             {{- else }}
             - --incluster
-            - --incluster.name={{ .Values.deployment.clusterName }}
+            {{- end }}
+            {{- if .Values.plugins.prometheus.enabled }}
+            - --plugin.prometheus.enabled
+            - --plugin.prometheus.address={{ .Values.plugins.prometheus.address }}
             {{- end }}
           ports:
             - name: http

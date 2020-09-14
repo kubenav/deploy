@@ -4,7 +4,7 @@ replicaCount: 1
 
 image:
   repository: kubenav/kubenav
-  tag: 4a5f72c1
+  tag: d74a11da
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -15,10 +15,13 @@ deployment:
   # Specifies whether kubenav should in the incluster mode or with a mounted Kubeconfig.
   # This must be "incluster" or "kubeconfig"
   mode: incluster
-  # The cluster name which should be displayed in the frontend, when using the "incluster" mode.
-  clusterName: kubenav
   # When the "kubeconfig" mode is used the kubeconfig value must contain a base64 encoded Kubeconfig file.
   kubeconfig:
+
+plugins:
+  prometheus:
+    enabled: false
+    address:
 
 rbac:
   # Specifies whether a cluster role and cluster role binding should be created.

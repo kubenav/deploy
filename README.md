@@ -18,6 +18,8 @@ kubectl port-forward --namespace kubenav svc/kubenav 14122
 
 ### Configure Access to Multiple Clusters
 
+> **Attention:** When kubenav runs inside a Kubernetes cluster with the `--kubeconfig` flag and the Prometheus plugin enabled (`--plugin.prometheus.enabled`) it will only use the Prometheus instance, which is running in the same cluster.
+
 The deployment shown in this repository deploys kubenav with the `--incluster` flag. This means kubenav has only access to the cluster were it is deployed in. To deploy kubenav with access to multiple cluster you have to mount a Kubeconfig file into the kubenav container and add the `--kubeconfig` flag.
 
 The following example shows the changes you have to made to the `deployment.yaml` file to access multiple clusters from the same kubenav instance:
@@ -73,14 +75,15 @@ helm upgrade --install --namespace kubenav kubenav kubenav/kubenav
 | ----- | ----------- | ------- |
 | `replicaCount` | Number of replicas which should be created. | `1` |
 | `image.repository` | The repository of the Docker image. | `kubenav/kubenav` |
-| `image.tag` | The tag of the Docker image which should be used. | `4a5f72c1` |
+| `image.tag` | The tag of the Docker image which should be used. | `d74a11da` |
 | `image.pullPolicy` | The pull policy for the Docker image, | `IfNotPresent` |
 | `imagePullSecrets` | Secrets which can be used to pull the Docker image. | `[]` |
 | `nameOverride` | Expand the name of the chart. | `""` |
 | `fullnameOverride` | Override the name of the app. | `""` |
 | `deployment.mode` | Set the mode how kubenav should be deployed. This must be `incluster` or `kubeconfig`. | `incluster` |
-| `deployment.clusterName` | The name which should be in the frontend, when the `incluster` mode is used. | `kubenav` |
 | `deployment.kubeconfig` | When the `kubeconfig` mode is used. This must be a base64 encoded Kubeconfig file. | `""` |
+| `plugins.prometheus.enabled` | Enables the Prometheus plugin. | `false` |
+| `plugins.prometheus.address` | The address of Prometheus. | `""` |
 | `rbac.create` | Create the cluster role and cluster role binding. | `true` |
 | `rbac.name` | The name of the cluster role and cluster role binding, which should be created/used by kubenav. | `kubenav` |
 | `rbac.name` | The permissions which kubenav should have. This must be `admin` or `viewer`. | `admin` |
