@@ -40,7 +40,7 @@ spec:
             secretName: kubeconfig
 ```
 
-The aboive example mounts a secret named `kubeconfig` into the kubenav pod and makes use of the Kubeconfig via the `--kubeconfig` flag. The secret must look as follows:
+The above example mounts a secret named `kubeconfig` into the kubenav pod and makes use of the Kubeconfig via the `--kubeconfig` flag. The secret must look as follows:
 
 ```yaml
 ---
