@@ -22,7 +22,7 @@ spec:
       serviceAccountName: kubenav
       containers:
         - name: kubenav
-          image: kubenav/kubenav:560dcebf
+          image: kubenav/kubenav:3.0.0
           imagePullPolicy: IfNotPresent
           args:
              - --incluster
