@@ -2,5 +2,5 @@ apiVersion: v2
 name: kubenav
 description: kubenav is the navigator for your Kubernetes clusters right in your pocket.
 type: application
-version: 1.0.0
-appVersion: 3.0.0
+version: 1.0.1
+appVersion: 3.1.0
