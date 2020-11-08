@@ -104,7 +104,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 80
+    - port: 14122
       targetPort: http
       protocol: TCP
       name: http
