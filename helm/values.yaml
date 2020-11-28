@@ -4,7 +4,7 @@ replicaCount: 1
 
 image:
   repository: kubenav/kubenav
-  tag: 3.1.0
+  tag: 3.2.0
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
