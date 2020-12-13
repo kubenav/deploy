@@ -1,0 +1,86 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cert-manager-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/dashboard: "true"
+data:
+  title: "cert-manager"
+  description: "Dashboard for cert-manager Metrics"
+  charts: |
+    [
+      {
+        "title": "Time Left",
+        "unit": "Days",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": " {{ .exported_namespace }} / {{ .name }}",
+            "query": "(sum(certmanager_certificate_expiration_timestamp_seconds - time()) by (name,exported_namespace)) / 60 / 60 / 24"
+          }
+        ]
+      },
+      {
+        "title": "Certificate Ready Status",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .condition }}",
+            "query": "sum(certmanager_certificate_ready_status) by (condition)"
+          }
+        ]
+      },
+      {
+        "title": "ACME Client: Overall Requests",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .status }}",
+            "query": "sum(rate(certmanager_http_acme_client_request_count[2m])) by (status)"
+          }
+        ]
+      },
+      {
+        "title": "ACME Client: Requests by Path",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .path }} {{ .status }}",
+            "query": "sum(rate(certmanager_http_acme_client_request_count[2m])) by (status, path)"
+          }
+        ]
+      }
+    ]

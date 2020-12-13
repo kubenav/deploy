@@ -1,0 +1,208 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-ingress-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/dashboard: "true"
+data:
+  title: "NGINX Ingress Controller"
+  description: "Dashboard for NGINX Ingress Controller Metrics"
+  link: "Ingress=$.metadata.name"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "controller_namespace",
+        "query": "nginx_ingress_controller_config_hash",
+        "allowAll": true
+      },
+      {
+        "name": "ControllerClass",
+        "label": "controller_class",
+        "query": "nginx_ingress_controller_config_hash{namespace=~\"{{ .Namespace }}\"}",
+        "allowAll": true
+      },
+      {
+        "name": "Controller",
+        "label": "controller_pod",
+        "query": "nginx_ingress_controller_config_hash{namespace=~\"{{ .Namespace }}\",controller_class=~\"{{ .ControllerClass }}\"}",
+        "allowAll": true
+      },
+      {
+        "name": "Ingress",
+        "label": "ingress",
+        "query": "nginx_ingress_controller_requests{namespace=~\"{{ .Namespace }}\",controller_class=~\"{{ .ControllerClass }}\", controller_pod=~\"{{ .Controller }}\"}",
+        "allowAll": true
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "Controller Request Volume",
+        "unit": "ops",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "4",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "Request Volume",
+            "query": "round(sum(irate(nginx_ingress_controller_requests{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\"}[2m])), 0.001)"
+          }
+        ]
+      },
+      {
+        "title": "Controller Connections",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "4",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "Controller Connections",
+            "query": "sum(avg_over_time(nginx_ingress_controller_nginx_process_connections{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\"}[2m]))"
+          }
+        ]
+      },
+      {
+        "title": "Controller Success Rate",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "4",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "Controller Success Rate",
+            "query": "sum(rate(nginx_ingress_controller_requests{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",status!~\"[4-5].*\"}[2m])) / sum(rate(nginx_ingress_controller_requests{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\"}[2m])) * 100"
+          }
+        ]
+      },
+      {
+        "title": "Ingress Request Volume",
+        "unit": "reqps",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .ingress }}",
+            "query": "round(sum(irate(nginx_ingress_controller_requests{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\"}[2m])) by (ingress), 0.001)"
+          }
+        ]
+      },
+      {
+        "title": "Ingress Success Rate",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .ingress }}",
+            "query": "sum(rate(nginx_ingress_controller_requests{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\",status!~\"[4-5].*\"}[2m])) by (ingress) / sum(rate(nginx_ingress_controller_requests{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\"}[2m])) by (ingress) * 100"
+          }
+        ]
+      },
+      {
+        "title": "Network I/O Pressure",
+        "unit": "MB/s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Received",
+            "query": "sum (irate (nginx_ingress_controller_request_size_sum{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\"}[2m])) / 1024 / 1024"
+          },
+          {
+            "label": "Sent",
+            "query": "- sum (irate (nginx_ingress_controller_response_size_sum{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\"}[2m])) / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "Average Memory Usage",
+        "unit": "MiB",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "NGINX",
+            "query": "avg(nginx_ingress_controller_nginx_process_resident_memory_bytes{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\"}) / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "Average CPU Usage",
+        "unit": "Cores",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "NGINX",
+            "query": "sum (rate (nginx_ingress_controller_nginx_process_cpu_seconds_total{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\"}[2m]))"
+          }
+        ]
+      },
+      {
+        "title": "Ingress Certificate Expiry",
+        "unit": "Days",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "12",
+          "xl": "12"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .host }}",
+            "query": "(avg(nginx_ingress_controller_ssl_expire_time_seconds{namespace=~\"{{ .Namespace }}\"}) by (host) - time()) / 60 / 60 / 24"
+          }
+        ]
+      }
+    ]

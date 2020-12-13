@@ -1,0 +1,211 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jaeger-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/dashboard: "true"
+data:
+  title: "Jaeger"
+  description: "Dashboard for Jaeger Metrics"
+  link: "Namespace=$.metadata.namespace&Pod=$.metadata.name"
+  charts: |
+    [
+      {
+        "title": "Services: Span Creation Rate",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Error",
+            "query": "sum(rate(jaeger_reporter_spans{result=~\"dropped|err\"}[1m]))"
+          },
+          {
+            "label": "Success",
+            "query": "sum(rate(jaeger_reporter_spans[1m])) - sum(rate(jaeger_reporter_spans{result=~\"dropped|err\"}[1m]))"
+          }
+        ]
+      },
+      {
+        "title": "Services: Spans Dropped",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .namespace }}",
+            "query": "sum(rate(jaeger_reporter_spans{result=~\"dropped|err\"}[1m])) by (namespace) / sum(rate(jaeger_reporter_spans[1m])) by (namespace) * 100"
+          }
+        ]
+      },
+      {
+        "title": "Agent: Batch Ingest Rate",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Error",
+            "query": "sum(rate(jaeger_agent_reporter_batches_failures_total[1m]))"
+          },
+          {
+            "label": "Success",
+            "query": "sum(rate(jaeger_agent_reporter_batches_submitted_total[1m])) - sum(rate(jaeger_agent_reporter_batches_failures_total[1m]))"
+          }
+        ]
+      },
+      {
+        "title": "Agent: Batches Dropped",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .cluster }}",
+            "query": "sum(rate(jaeger_agent_reporter_batches_failures_total[1m])) by (cluster) / sum(rate(jaeger_agent_reporter_batches_submitted_total[1m])) by (cluster) * 100"
+          }
+        ]
+      },
+      {
+        "title": "Collector: Span Ingest Rate",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Error",
+            "query": "sum(rate(jaeger_collector_spans_dropped_total[1m]))"
+          },
+          {
+            "label": "Success",
+            "query": "sum(rate(jaeger_collector_spans_received_total[1m])) - sum(rate(jaeger_collector_spans_dropped_total[1m]))"
+          }
+        ]
+      },
+      {
+        "title": "Collector: Spans Dropped",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .instance }}",
+            "query": "sum(rate(jaeger_collector_spans_dropped_total[1m])) by (instance) / sum(rate(jaeger_collector_spans_received_total[1m])) by (instance) * 100"
+          }
+        ]
+      },
+      {
+        "title": "Collector Queue: Span Queue Length",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .instance }}",
+            "query": "jaeger_collector_queue_length"
+          }
+        ]
+      },
+      {
+        "title": "Collector Queue: Span Queue Time (P95)",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .instance }}",
+            "query": "histogram_quantile(0.95, sum(rate(jaeger_collector_in_queue_latency_bucket[1m])) by (le, instance))"
+          }
+        ]
+      },
+      {
+        "title": "Query: QPRS",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Error",
+            "query": "sum(rate(jaeger_query_requests_total{result=\"err\"}[1m]))"
+          },
+          {
+            "label": "Success",
+            "query": "sum(rate(jaeger_query_requests_total[1m])) - sum(rate(jaeger_query_requests_total{result=\"err\"}[1m]))"
+          }
+        ]
+      },
+      {
+        "title": "Query: Latency (P99)",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .instance }}",
+            "query": "histogram_quantile(0.99, sum(rate(jaeger_query_latency_bucket[1m])) by (le, instance))"
+          }
+        ]
+      }
+    ]

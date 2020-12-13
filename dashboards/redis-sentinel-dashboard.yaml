@@ -1,0 +1,178 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-sentinel-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/dashboard: "true"
+data:
+  title: "Redis Sentinel"
+  description: "Dashboard for Redis Sentinel Metrics"
+  link: "Namespace=$.metadata.namespace&Pod=$.metadata.name"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "namespace",
+        "query": "redis_sentinel_info",
+        "allowAll": false
+      },
+      {
+        "name": "Pod",
+        "label": "pod",
+        "query": "redis_sentinel_info{namespace=~\"{{ .Namespace }}\"}",
+        "allowAll": false
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "Uptime",
+        "unit": "Days",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "Uptime",
+            "query": "redis_sentinel_uptime_in_seconds{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"} / 60 / 60 / 24"
+          }
+        ]
+      },
+      {
+        "title": "Clients",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "Clients",
+            "query": "redis_sentinel_connected_clients{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Blocked Clients",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "Blocked Clients",
+            "query": "redis_sentinel_blocked_clients{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Masters",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "Masters",
+            "query": "redis_sentinel_masters{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Slaves",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "Slaves",
+            "query": "sum(redis_sentinel_master_slaves{namespace=~\"{{ .Namespace }}\"}) / count(redis_sentinel_master_slaves{namespace=~\"{{ .Namespace }}\"})"
+          }
+        ]
+      },
+      {
+        "title": "Network I/O",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Input",
+            "query": "rate(redis_sentinel_net_input_bytes_total{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[1m])"
+          },
+          {
+            "label": "Output",
+            "query": "rate(redis_sentinel_net_output_bytes_total{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[1m])"
+          }
+        ]
+      },
+      {
+        "title": "Sentinel Master Status",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .name }} - {{ .pod }} ({{ .address }})",
+            "query": "redis_sentinel_master_status{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Processed Commands",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .pod }}",
+            "query": "rate(redis_sentinel_commands_processed_total{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[1m])"
+          }
+        ]
+      }
+    ]

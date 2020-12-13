@@ -1,0 +1,192 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nats-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/dashboard: "true"
+data:
+  title: "NATS"
+  description: "Dashboard for NATS Metrics"
+  link: "Namespace=$.metadata.namespace&Pod=$.metadata.name"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "namespace",
+        "query": "gnatsd_varz_subscriptions",
+        "allowAll": false
+      },
+      {
+        "name": "Pod",
+        "label": "pod",
+        "query": "gnatsd_varz_subscriptions{namespace=~\"{{ .Namespace }}\"}",
+        "allowAll": true
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "Server CPU",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .pod }}",
+            "query": "gnatsd_varz_cpu{namespace=~\"{{ .Namespace }}\",pod=~\"{{ .Pod }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Server Memory",
+        "unit": "MiB",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .pod }}",
+            "query": "gnatsd_varz_mem{namespace=~\"{{ .Namespace }}\",pod=~\"{{ .Pod }}\"} / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "Bytes In",
+        "unit": "MiB",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .pod }}",
+            "query": "gnatsd_varz_in_bytes{namespace=~\"{{ .Namespace }}\",pod=~\"{{ .Pod }}\"} / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "Bytes Out",
+        "unit": "MiB",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .pod }}",
+            "query": "gnatsd_varz_out_bytes{namespace=~\"{{ .Namespace }}\",pod=~\"{{ .Pod }}\"} / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "NATS Messages In",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .pod }}",
+            "query": "gnatsd_varz_in_msgs{namespace=~\"{{ .Namespace }}\",pod=~\"{{ .Pod }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "NATS Messages Out",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .pod }}",
+            "query": "gnatsd_varz_out_msgs{namespace=~\"{{ .Namespace }}\",pod=~\"{{ .Pod }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Connections",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .pod }}",
+            "query": "gnatsd_varz_connections{namespace=~\"{{ .Namespace }}\",pod=~\"{{ .Pod }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Subscriptions",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .pod }}",
+            "query": "gnatsd_varz_subscriptions{namespace=~\"{{ .Namespace }}\",pod=~\"{{ .Pod }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Slow Consumers",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .pod }}",
+            "query": "gnatsd_varz_slow_consumers{namespace=~\"{{ .Namespace }}\",pod=~\"{{ .Pod }}\"}"
+          }
+        ]
+      }
+    ]

@@ -1,0 +1,138 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: filebeat-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/dashboard: "true"
+data:
+  title: "Filebeat"
+  description: "Dashboard for Filebeat Metrics"
+  link: "Namespace=$.metadata.namespace&Pod=$.metadata.name"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "namespace",
+        "query": "filebeat_up",
+        "allowAll": false
+      },
+      {
+        "name": "Pod",
+        "label": "pod",
+        "query": "filebeat_up{namespace=~\"{{ .Namespace }}\"}",
+        "allowAll": true
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "Filebeat Acked Output Events",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Acked Events {{ .pod }}",
+            "query": "rate(filebeat_libbeat_output_events{type=\"acked\", pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[1m])"
+          }
+        ]
+      },
+      {
+        "title": "Filebeat Active Output Events",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Active Events {{ .pod }}",
+            "query": "rate(filebeat_libbeat_output_events{type=\"active\", pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[1m])"
+          }
+        ]
+      },
+      {
+        "title": "Filebeat Duplicates Output Events",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Duplicates Events {{ .pod }}",
+            "query": "rate(filebeat_libbeat_output_events{type=\"duplicates\", pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[1m])"
+          }
+        ]
+      },
+      {
+        "title": "Filebeat Dropped Output Events",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Dropped Events {{ .pod }}",
+            "query": "rate(filebeat_libbeat_output_events{type=\"dropped\", pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[1m])"
+          }
+        ]
+      },
+      {
+        "title": "Filebeat Failed Output Events",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Failed Events {{ .pod }}",
+            "query": "rate(filebeat_libbeat_output_events{type=\"failed\", pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[1m])"
+          }
+        ]
+      },
+      {
+        "title": "Filebeat Batches Output Events",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Batches Events {{ .pod }}",
+            "query": "rate(filebeat_libbeat_output_events{type=\"batches\", pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[1m])"
+          }
+        ]
+      }
+    ]

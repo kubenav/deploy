@@ -1,0 +1,248 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/dashboard: "true"
+data:
+  title: "Redis"
+  description: "Dashboard for Redis Metrics"
+  link: "Namespace=$.metadata.namespace&Pod=$.metadata.name"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "namespace",
+        "query": "redis_up",
+        "allowAll": false
+      },
+      {
+        "name": "Pod",
+        "label": "pod",
+        "query": "redis_up{namespace=~\"{{ .Namespace }}\"}",
+        "allowAll": false
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "Uptime",
+        "unit": "Days",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "Uptime",
+            "query": "max(max_over_time(redis_uptime_in_seconds{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[1m])) / 60 / 60 / 24"
+          }
+        ]
+      },
+      {
+        "title": "Clients",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "Clients",
+            "query": "sum(redis_connected_clients{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"})"
+          }
+        ]
+      },
+      {
+        "title": "Memory Usage",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "Memory Usage",
+            "query": "100 * (sum(redis_memory_used_bytes{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}) / sum(redis_memory_max_bytes{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}))"
+          }
+        ]
+      },
+      {
+        "title": "Commands Executed / Second",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Commands Executed / Second",
+            "query": "sum(rate(redis_commands_processed_total{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[1m]))"
+          }
+        ]
+      },
+      {
+        "title": "Hits / Misses per Second",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Hits",
+            "query": "sum(irate(redis_keyspace_hits_total{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[5m]))"
+          },
+          {
+            "label": "Misses",
+            "query": "sum(irate(redis_keyspace_misses_total{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[5m]))"
+          }
+        ]
+      },
+      {
+        "title": "Total Memory Usage",
+        "unit": "MiB",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Used",
+            "query": "sum(redis_memory_used_bytes{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}) / 1024 / 1024"
+          },
+          {
+            "label": "Max",
+            "query": "sum(redis_memory_max_bytes{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}) / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "Network I/O",
+        "unit": "MiB",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .input }}",
+            "query": "sum(rate(redis_net_input_bytes_total{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[5m])) / 1024 / 1024"
+          },
+          {
+            "label": "{{ .output }}",
+            "query": "sum(rate(redis_net_output_bytes_total{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[5m])) / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "Total Items per DB",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .db }}",
+            "query": "sum (redis_db_keys{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}) by (db)"
+          }
+        ]
+      },
+      {
+        "title": "Expiring vs. Not-Expiring Keys",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Not Expiring",
+            "query": "sum (redis_db_keys{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}) - sum (redis_db_keys_expiring{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"})"
+          },
+          {
+            "label": "Expiring",
+            "query": "sum (redis_db_keys_expiring{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"})"
+          }
+        ]
+      },
+      {
+        "title": "Expired / Evicted",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Expired",
+            "query": "sum(rate(redis_expired_keys_total{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[5m]))"
+          },
+          {
+            "label": "Evicted",
+            "query": "sum(rate(redis_evicted_keys_total{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[5m]))"
+          }
+        ]
+      },
+      {
+        "title": "Command Calls / Second",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .cmd }}",
+            "query": "topk(5, irate(redis_commands_total{pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"} [1m]))"
+          }
+        ]
+      }
+    ]

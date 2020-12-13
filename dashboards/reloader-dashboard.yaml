@@ -1,0 +1,66 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: reloader-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/dashboard: "true"
+data:
+  title: "Reloader"
+  description: "Dashboard for Reloader Metrics"
+  link: "Namespace=$.metadata.namespace&Pod=$.metadata.name"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "namespace",
+        "query": "redis_up",
+        "allowAll": false
+      },
+      {
+        "name": "Pod",
+        "label": "pod",
+        "query": "reloader_reload_executed_total{namespace=~\"{{ .Namespace }}\"}",
+        "allowAll": false
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "Reloader Execute Successful",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Reloader Execute Successful",
+            "query": "rate(reloader_reload_executed_total{success=\"true\", pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[1m])"
+          }
+        ]
+      },
+      {
+        "title": "Reloader Execute Failed",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Reloader Execute Failed",
+            "query": "rate(reloader_reload_executed_total{success=\"false\", pod=~\"{{ .Pod }}\", namespace=~\"{{ .Namespace }}\"}[1m])"
+          }
+        ]
+      }
+    ]

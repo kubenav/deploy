@@ -1,0 +1,220 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-ingress-request-handling-performance-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/dashboard: "true"
+data:
+  title: "NGINX Ingress Controller: Request Handling Performance"
+  description: "Dashboard for NGINX Ingress Controller Request Handling Performance"
+  link: "Ingress=$.metadata.name"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "controller_namespace",
+        "query": "nginx_ingress_controller_config_hash",
+        "allowAll": true
+      },
+      {
+        "name": "ControllerClass",
+        "label": "controller_class",
+        "query": "nginx_ingress_controller_config_hash{namespace=~\"{{ .Namespace }}\"}",
+        "allowAll": true
+      },
+      {
+        "name": "Controller",
+        "label": "controller_pod",
+        "query": "nginx_ingress_controller_config_hash{namespace=~\"{{ .Namespace }}\",controller_class=~\"{{ .ControllerClass }}\"}",
+        "allowAll": true
+      },
+      {
+        "name": "Ingress",
+        "label": "ingress",
+        "query": "nginx_ingress_controller_requests{namespace=~\"{{ .Namespace }}\",controller_class=~\"{{ .ControllerClass }}\", controller_pod=~\"{{ .Controller }}\"}",
+        "allowAll": true
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "Total Request Handling Time",
+        "unit": "s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "P50",
+            "query": "histogram_quantile(0.5, sum by (le) (rate(nginx_ingress_controller_request_duration_seconds_bucket{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\"}[1m])))"
+          },
+          {
+            "label": "P90",
+            "query": "histogram_quantile(0.95, sum by (le) (rate(nginx_ingress_controller_request_duration_seconds_bucket{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\"}[1m])))"
+          },
+          {
+            "label": "P99",
+            "query": "histogram_quantile(0.99, sum by (le) (rate(nginx_ingress_controller_request_duration_seconds_bucket{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\"}[1m])))"
+          }
+        ]
+      },
+      {
+        "title": "Upstream Response Time",
+        "unit": "s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "P50",
+            "query": "histogram_quantile(0.5, sum by (le) (rate(nginx_ingress_controller_response_duration_seconds_bucket{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\"}[1m])))"
+          },
+          {
+            "label": "P90",
+            "query": "histogram_quantile(0.95, sum by (le) (rate(nginx_ingress_controller_response_duration_seconds_bucket{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\"}[1m])))"
+          },
+          {
+            "label": "P99",
+            "query": "histogram_quantile(0.99, sum by (le) (rate(nginx_ingress_controller_response_duration_seconds_bucket{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\"}[1m])))"
+          }
+        ]
+      },
+      {
+        "title": "Request Volume by Path",
+        "unit": "reqps",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .path }}",
+            "query": "sum by (path) (rate(nginx_ingress_controller_request_duration_seconds_count{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\"}[1m]))"
+          }
+        ]
+      },
+      {
+        "title": "Median Upstream Response Time by Path",
+        "unit": "ms",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .path }}",
+            "query": "histogram_quantile(0.5, sum by (le, path) (rate(nginx_ingress_controller_response_duration_seconds_bucket{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\"}[1m]))) * 1000"
+          }
+        ]
+      },
+      {
+        "title": "Response Error Rate by Path",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .path }}",
+            "query": "sum by (path) (rate(nginx_ingress_controller_request_duration_seconds_count{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\",status=~\"[4-5].*\"}[1m])) / sum by (path) (rate(nginx_ingress_controller_request_duration_seconds_count{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\"}[1m]))"
+          }
+        ]
+      },
+      {
+        "title": "Upstream Time Consumed by Path",
+        "unit": "ms",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .path }}",
+            "query": "sum by (path) (rate(nginx_ingress_controller_response_duration_seconds_sum{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\"}[1m])) * 1000"
+          }
+        ]
+      },
+      {
+        "title": "Response Error Volume by Path",
+        "unit": "reqps",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .path }} {{ .status }}",
+            "query": "sum (rate(nginx_ingress_controller_request_duration_seconds_count{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\",status=~\"[4-5].*\"}[1m])) by(path, status)"
+          }
+        ]
+      },
+      {
+        "title": "Average Response Size by Path",
+        "unit": "bytes",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .path }}",
+            "query": "sum (rate (nginx_ingress_controller_response_size_sum {controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\"}[1m])) by (path) / sum (rate(nginx_ingress_controller_response_size_count{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\"}[1m])) by (path)"
+          }
+        ]
+      },
+      {
+        "title": "Upstream Service Latency",
+        "unit": "µs",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Average",
+            "query": "sum (rate(nginx_ingress_controller_ingress_upstream_latency_seconds_sum{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\"}[1m])) / sum (rate(nginx_ingress_controller_ingress_upstream_latency_seconds_count{controller_pod=~\"{{ .Controller }}\",controller_class=~\"{{ .ControllerClass }}\",namespace=~\"{{ .Namespace }}\",ingress=~\"{{ .Ingress }}\"}[1m])) * 1000 * 1000"
+          }
+        ]
+      }
+    ]
