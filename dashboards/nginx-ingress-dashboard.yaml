@@ -9,7 +9,6 @@ metadata:
 data:
   title: "NGINX Ingress Controller"
   description: "Dashboard for NGINX Ingress Controller Metrics"
-  link: "Ingress=$.metadata.name"
   variables: |
     [
       {

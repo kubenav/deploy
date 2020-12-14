@@ -9,7 +9,6 @@ metadata:
 data:
   title: "Redis"
   description: "Dashboard for Redis Metrics"
-  link: "Namespace=$.metadata.namespace&Pod=$.metadata.name"
   variables: |
     [
       {

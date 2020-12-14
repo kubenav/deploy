@@ -9,7 +9,6 @@ metadata:
 data:
   title: "Redis Sentinel"
   description: "Dashboard for Redis Sentinel Metrics"
-  link: "Namespace=$.metadata.namespace&Pod=$.metadata.name"
   variables: |
     [
       {

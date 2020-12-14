@@ -9,7 +9,6 @@ metadata:
 data:
   title: "Reloader"
   description: "Dashboard for Reloader Metrics"
-  link: "Namespace=$.metadata.namespace&Pod=$.metadata.name"
   variables: |
     [
       {

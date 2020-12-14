@@ -9,7 +9,6 @@ metadata:
 data:
   title: "NATS"
   description: "Dashboard for NATS Metrics"
-  link: "Namespace=$.metadata.namespace&Pod=$.metadata.name"
   variables: |
     [
       {

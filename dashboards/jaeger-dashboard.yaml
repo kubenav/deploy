@@ -9,7 +9,6 @@ metadata:
 data:
   title: "Jaeger"
   description: "Dashboard for Jaeger Metrics"
-  link: "Namespace=$.metadata.namespace&Pod=$.metadata.name"
   charts: |
     [
       {

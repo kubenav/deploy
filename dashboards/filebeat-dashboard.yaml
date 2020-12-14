@@ -9,7 +9,6 @@ metadata:
 data:
   title: "Filebeat"
   description: "Dashboard for Filebeat Metrics"
-  link: "Namespace=$.metadata.namespace&Pod=$.metadata.name"
   variables: |
     [
       {
