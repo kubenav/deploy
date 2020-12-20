@@ -14,7 +14,7 @@ data:
       {
         "name": "Namespace",
         "label": "namespace",
-        "query": "redis_up",
+        "query": "reloader_reload_executed_total",
         "allowAll": false
       },
       {

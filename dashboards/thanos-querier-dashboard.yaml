@@ -1,0 +1,293 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: thanos-querier-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/dashboard: "true"
+data:
+  title: "Thanos Querier"
+  description: "Dashboard for Thanos Querier Metrics"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "namespace",
+        "query": "thanos_querier_store_apis_dns_lookups_total",
+        "allowAll": false
+      },
+      {
+        "name": "Pod",
+        "label": "pod",
+        "query": "thanos_querier_store_apis_dns_lookups_total{namespace=~\"{{ .Namespace }}\"}",
+        "allowAll": true
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "Instant Query API: Rate",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .status_code }}",
+            "query": "sum(label_replace(rate(http_requests_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", handler=\"query\"}[5m]), \"status_code\", \"${1}xx\", \"code\", \"([0-9])..\")) by (status_code)"
+          }
+        ]
+      },
+      {
+        "title": "Instant Query API: Errors",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Errors",
+            "query": "sum(rate(http_requests_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", handler=\"query\", code=~\"5..\"}[5m])) / sum(rate(http_requests_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", handler=\"query\"}[5m])) * 100"
+          }
+        ]
+      },
+      {
+        "title": "Instant Query API: Duration",
+        "unit": "s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "P99",
+            "query": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", handler=\"query\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "P90",
+            "query": "histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", handler=\"query\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "P50",
+            "query": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", handler=\"query\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "Mean",
+            "query": "sum(rate(http_request_duration_seconds_sum{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", handler=\"query\"}[5m])) * 1 / sum(rate(http_request_duration_seconds_count{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", handler=\"query\"}[5m]))"
+          }
+        ]
+      },
+      {
+        "title": "Range Query API: Rate",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .status_code }}",
+            "query": "sum(label_replace(rate(http_requests_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", handler=\"query_range\"}[5m]), \"status_code\", \"${1}xx\", \"code\", \"([0-9])..\")) by (status_code)"
+          }
+        ]
+      },
+      {
+        "title": "Range Query API: Errors",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Errors",
+            "query": "sum(rate(http_requests_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", handler=\"query_range\",code=~\"5..\"}[5m])) / sum(rate(http_requests_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", handler=\"query_range\"}[5m])) * 100"
+          }
+        ]
+      },
+      {
+        "title": "Range Query API: Duration",
+        "unit": "s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "P99",
+            "query": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", handler=\"query_range\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "P90",
+            "query": "histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", handler=\"query_range\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "P50",
+            "query": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", handler=\"query_range\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "Mean",
+            "query": "sum(rate(http_request_duration_seconds_sum{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", handler=\"query_range\"}[5m])) * 1 / sum(rate(http_request_duration_seconds_count{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", handler=\"query_range\"}[5m]))"
+          }
+        ]
+      },
+      {
+        "title": "gRPC (Unary): Rate",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .grpc_code }}",
+            "query": "sum(rate(grpc_client_handled_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"unary\"}[5m])) by (grpc_code)"
+          }
+        ]
+      },
+      {
+        "title": "gRPC (Unary): Errors",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Errors",
+            "query": "sum(rate(grpc_client_handled_total{grpc_code=~\"Unknown|ResourceExhausted|Internal|Unavailable\", namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"unary\"}[5m])) / sum(rate(grpc_client_started_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"unary\"}[5m])) * 100"
+          }
+        ]
+      },
+      {
+        "title": "gRPC (Unary): Duration",
+        "unit": "s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "P99",
+            "query": "histogram_quantile(0.99, sum(rate(grpc_client_handling_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"unary\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "P90",
+            "query": "histogram_quantile(0.90, sum(rate(grpc_client_handling_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"unary\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "P50",
+            "query": "histogram_quantile(0.50, sum(rate(grpc_client_handling_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"unary\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "Mean",
+            "query": "sum(rate(grpc_client_handling_seconds_sum{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"unary\"}[5m])) * 1 / sum(rate(grpc_client_handling_seconds_count{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"unary\"}[5m]))"
+          }
+        ]
+      },
+      {
+        "title": "gRPC (Stream): Rate",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .grpc_code }}",
+            "query": "sum(rate(grpc_client_handled_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"server_stream\"}[5m])) by (grpc_code)"
+          }
+        ]
+      },
+      {
+        "title": "gRPC (Stream): Errors",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Errors",
+            "query": "sum(rate(grpc_client_handled_total{grpc_code=~\"Unknown|ResourceExhausted|Internal|Unavailable\", namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"server_stream\"}[5m])) / sum(rate(grpc_client_started_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"server_stream\"}[5m])) * 100"
+          }
+        ]
+      },
+      {
+        "title": "gRPC (Stream): Duration",
+        "unit": "s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "P99",
+            "query": "histogram_quantile(0.99, sum(rate(grpc_client_handling_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"server_stream\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "P90",
+            "query": "histogram_quantile(0.90, sum(rate(grpc_client_handling_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"server_stream\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "P50",
+            "query": "histogram_quantile(0.50, sum(rate(grpc_client_handling_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"server_stream\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "Mean",
+            "query": "sum(rate(grpc_client_handling_seconds_sum{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"server_stream\"}[5m])) * 1 / sum(rate(grpc_client_handling_seconds_count{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"server_stream\"}[5m]))"
+          }
+        ]
+      }
+    ]

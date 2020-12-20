@@ -1,0 +1,371 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: thanos-store-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/dashboard: "true"
+data:
+  title: "Thanos Store"
+  description: "Dashboard for Thanos Store Metrics"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "namespace",
+        "query": "thanos_bucket_store_block_loads_total",
+        "allowAll": false
+      },
+      {
+        "name": "Pod",
+        "label": "pod",
+        "query": "thanos_bucket_store_block_loads_total{namespace=~\"{{ .Namespace }}\"}",
+        "allowAll": true
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "gRPC (Unary): Rate",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .grpc_code }}",
+            "query": "sum(rate(grpc_server_handled_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"unary\"}[5m])) by (grpc_code)"
+          }
+        ]
+      },
+      {
+        "title": "gRPC (Unary): Errors",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Errors",
+            "query": "sum(rate(grpc_server_handled_total{grpc_code=~\"Unknown|ResourceExhausted|Internal|Unavailable\", namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"unary\"}[5m])) / sum(rate(grpc_server_started_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"unary\"}[5m])) * 100"
+          }
+        ]
+      },
+      {
+        "title": "gRPC (Unary): Duration",
+        "unit": "s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "P99",
+            "query": "histogram_quantile(0.99, sum(rate(grpc_server_handling_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"unary\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "P90",
+            "query": "histogram_quantile(0.90, sum(rate(grpc_server_handling_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"unary\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "P50",
+            "query": "histogram_quantile(0.50, sum(rate(grpc_server_handling_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"unary\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "Mean",
+            "query": "sum(rate(grpc_server_handling_seconds_sum{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"unary\"}[5m])) * 1 / sum(rate(grpc_server_handling_seconds_count{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"unary\"}[5m]))"
+          }
+        ]
+      },
+      {
+        "title": "gRPC (Stream): Rate",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .grpc_code }}",
+            "query": "sum(rate(grpc_server_handled_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"server_stream\"}[5m])) by (grpc_code)"
+          }
+        ]
+      },
+      {
+        "title": "gRPC (Stream): Errors",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Errors",
+            "query": "sum(rate(grpc_server_handled_total{grpc_code=~\"Unknown|ResourceExhausted|Internal|Unavailable\", namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"server_stream\"}[5m])) / sum(rate(grpc_server_started_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"server_stream\"}[5m])) * 100"
+          }
+        ]
+      },
+      {
+        "title": "gRPC (Stream): Duration",
+        "unit": "s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "P99",
+            "query": "histogram_quantile(0.99, sum(rate(grpc_server_handling_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"server_stream\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "P90",
+            "query": "histogram_quantile(0.90, sum(rate(grpc_server_handling_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"server_stream\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "P50",
+            "query": "histogram_quantile(0.50, sum(rate(grpc_server_handling_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"server_stream\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "Mean",
+            "query": "sum(rate(grpc_server_handling_seconds_sum{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"server_stream\"}[5m])) * 1 / sum(rate(grpc_server_handling_seconds_count{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\", grpc_type=\"server_stream\"}[5m]))"
+          }
+        ]
+      },
+      {
+        "title": "Bucket Operations: Rate",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .operation }}",
+            "query": "sum(rate(thanos_objstore_bucket_operations_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[5m])) by (operation)"
+          }
+        ]
+      },
+      {
+        "title": "Bucket Operations: Errors",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Errors",
+            "query": "sum(rate(thanos_objstore_bucket_operation_failures_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[5m])) / sum(rate(thanos_objstore_bucket_operations_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[5m])) * 100"
+          }
+        ]
+      },
+      {
+        "title": "Bucket Operations: Duration",
+        "unit": "s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "P99",
+            "query": "histogram_quantile(0.99, sum(rate(thanos_objstore_bucket_operation_duration_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "P90",
+            "query": "histogram_quantile(0.90, sum(rate(thanos_objstore_bucket_operation_duration_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "P50",
+            "query": "histogram_quantile(0.50, sum(rate(thanos_objstore_bucket_operation_duration_seconds_bucket{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[5m])) by (le)) * 1"
+          },
+          {
+            "label": "Mean",
+            "query": "sum(rate(thanos_objstore_bucket_operation_duration_seconds_sum{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[5m])) * 1 / sum(rate(thanos_objstore_bucket_operation_duration_seconds_count{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[5m]))"
+          }
+        ]
+      },
+      {
+        "title": "Block Operations: Block Load Rate",
+        "unit": "",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Rate",
+            "query": "sum(rate(thanos_bucket_store_block_loads_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[5m]))"
+          }
+        ]
+      },
+      {
+        "title": "Block Operations: Block Load Errors",
+        "unit": "%",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Errors",
+            "query": "sum(rate(thanos_bucket_store_block_load_failures_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[5m])) / sum(rate(thanos_bucket_store_block_loads_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[5m]))"
+          }
+        ]
+      },
+      {
+        "title": "Block Operations: Block Drop Rate",
+        "unit": "",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Rate",
+            "query": "sum(rate(thanos_bucket_store_block_drops_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[5m]))"
+          }
+        ]
+      },
+      {
+        "title": "Block Operations: Block Drop Errors",
+        "unit": "%",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Errors",
+            "query": "sum(rate(thanos_bucket_store_block_drop_failures_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[5m])) / sum(rate(thanos_bucket_store_block_drop_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[5m]))"
+          }
+        ]
+      },
+      {
+        "title": "Cache Operations: Requests",
+        "unit": "",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .item_type }}",
+            "query": "sum(rate(thanos_store_index_cache_requests_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[5m])) by (item_type)"
+          }
+        ]
+      },
+      {
+        "title": "Cache Operations: Hits",
+        "unit": "",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .item_type }}",
+            "query": "sum(rate(thanos_store_index_cache_hits_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[5m])) by (item_type)"
+          }
+        ]
+      },
+      {
+        "title": "Cache Operations: Added",
+        "unit": "",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .item_type }}",
+            "query": "sum(rate(thanos_store_index_cache_items_added_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[5m])) by (item_type)"
+          }
+        ]
+      },
+      {
+        "title": "Cache Operations: Evicted",
+        "unit": "",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .item_type }}",
+            "query": "sum(rate(thanos_store_index_cache_items_evicted_total{namespace=~\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[5m])) by (item_type)"
+          }
+        ]
+      }
+    ]
