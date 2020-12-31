@@ -5,7 +5,7 @@ metadata:
   name: nats-dashboard
   namespace: kubenav
   labels:
-    kubenav.io/dashboard: "true"
+    kubenav.io/prometheus-dashboard: "true"
 data:
   title: "NATS"
   description: "Dashboard for NATS Metrics"

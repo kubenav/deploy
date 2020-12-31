@@ -1,0 +1,287 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/prometheus-dashboard: "true"
+data:
+  title: "Elasticsearch"
+  description: "Dashboard for Elasticsearch Metrics"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "namespace",
+        "query": "elasticsearch_breakers_tripped",
+        "allowAll": false
+      },
+      {
+        "name": "Name",
+        "label": "name",
+        "query": "elasticsearch_breakers_tripped{namespace=~\"{{ .Namespace }}\", name!=\"\"}",
+        "allowAll": true
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "Cluster Health",
+        "unit": "",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "elasticsearch_cluster_health_status{namespace=\"{{ .Namespace }}\",color=\"red\"}==1 or (elasticsearch_cluster_health_status{namespace=\"{{ .Namespace }}\",color=\"green\"}==1)+4 or (elasticsearch_cluster_health_status{namespace=\"{{ .Namespace }}\",color=\"yellow\"}==1)+2"
+          }
+        ]
+      },
+      {
+        "title": "Tripped for Breakers",
+        "unit": "",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "count(elasticsearch_breakers_tripped{namespace=\"{{ .Namespace }}\",name=~\"{{ .Name }}\"}>0) or vector(0)"
+          }
+        ]
+      },
+      {
+        "title": "Avg. CPU Usage",
+        "unit": "%",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(elasticsearch_process_cpu_percent{namespace=\"{{ .Namespace }}\",name=~\"{{ .Name }}\"}) / count(elasticsearch_process_cpu_percent{namespace=\"{{ .Namespace }}\",name=~\"{{ .Name }}\"})"
+          }
+        ]
+      },
+      {
+        "title": "Avg. JVM Memory Used",
+        "unit": "%",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum (elasticsearch_jvm_memory_used_bytes{namespace=\"{{ .Namespace }}\",name=~\"{{ .Name }}\"}) / sum (elasticsearch_jvm_memory_max_bytes{namespace=\"{{ .Namespace }}\",name=~\"{{ .Name }}\"}) * 100"
+          }
+        ]
+      },
+      {
+        "title": "Nodes",
+        "unit": "",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "elasticsearch_cluster_health_number_of_nodes{namespace=\"{{ .Namespace }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Data Nodes",
+        "unit": "",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "elasticsearch_cluster_health_number_of_data_nodes{namespace=\"{{ .Namespace }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Pending Tasks",
+        "unit": "",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "elasticsearch_cluster_health_number_of_pending_tasks{namespace=\"{{ .Namespace }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Open File Descriptors",
+        "unit": "",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(elasticsearch_process_open_files_count{namespace=\"{{ .Namespace }}\",name=~\"{{ .Name }}\"})"
+          }
+        ]
+      },
+      {
+        "title": "Shards",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "12",
+          "xl": "12"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Active Primary Shards",
+            "query": "elasticsearch_cluster_health_active_primary_shards{namespace=\"{{ .Namespace }}\"}"
+          },
+          {
+            "label": "Active Shards",
+            "query": "elasticsearch_cluster_health_active_shards{namespace=\"{{ .Namespace }}\"}"
+          },
+          {
+            "label": "Initializing Shards",
+            "query": "elasticsearch_cluster_health_initializing_shards{namespace=\"{{ .Namespace }}\"}"
+          },
+          {
+            "label": "Relocating Shards",
+            "query": "elasticsearch_cluster_health_relocating_shards{namespace=\"{{ .Namespace }}\"}"
+          },
+          {
+            "label": "Delayed Shards",
+            "query": "elasticsearch_cluster_health_delayed_unassigned_shards{namespace=\"{{ .Namespace }}\"} "
+          },
+          {
+            "label": "Unassigned Shards",
+            "query": "elasticsearch_cluster_health_unassigned_shards{namespace=\"{{ .Namespace }}\"} "
+          }
+        ]
+      },
+      {
+        "title": "Disk Usage",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Disk Usage",
+            "query": "(1 - (sum(elasticsearch_filesystem_data_available_bytes{namespace=\"{{ .Namespace }}\",name=~\"{{ .Name }}\"}) / sum(elasticsearch_filesystem_data_size_bytes{namespace=\"{{ .Namespace }}\",name=~\"{{ .Name }}\"}))) * 100"
+          }
+        ]
+      },
+      {
+        "title": "Network Usage",
+        "unit": "MB/s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Sent",
+            "query": "sum(irate(elasticsearch_transport_tx_size_bytes_total{namespace=\"{{ .Namespace }}\",name=~\"{{ .Name }}\"}[5m])) / 1024 / 1024"
+          },
+          {
+            "label": "Received",
+            "query": "-sum(irate(elasticsearch_transport_rx_size_bytes_total{namespace=\"{{ .Namespace }}\",name=~\"{{ .Name }}\"}[5m])) / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "Documents Count",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Documents Count",
+            "query": "sum(elasticsearch_indices_docs{namespace=\"{{ .Namespace }}\",name=~\"{{ .Name }}\"})"
+          }
+        ]
+      },
+      {
+        "title": "Documents Indexed Rate",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Documents Indexed Rate",
+            "query": "sum(irate(elasticsearch_indices_indexing_index_total{namespace=\"{{ .Namespace }}\",name=~\"{{ .Name }}\"}[5m]))"
+          }
+        ]
+      }
+    ]

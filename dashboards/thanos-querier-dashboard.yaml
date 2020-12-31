@@ -5,7 +5,7 @@ metadata:
   name: thanos-querier-dashboard
   namespace: kubenav
   labels:
-    kubenav.io/dashboard: "true"
+    kubenav.io/prometheus-dashboard: "true"
 data:
   title: "Thanos Querier"
   description: "Dashboard for Thanos Querier Metrics"

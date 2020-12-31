@@ -1,0 +1,347 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-replicaset-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/prometheus-dashboard: "true"
+data:
+  title: "MongoDB Replica Set"
+  description: "Dashboard for MongoDB Replica Set Metrics"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "namespace",
+        "query": "mongodb_connections",
+        "allowAll": false
+      },
+      {
+        "name": "ReplicaSet",
+        "label": "set",
+        "query": "mongodb_mongod_replset_my_state{namespace=~\"{{ .Namespace }}\"}",
+        "allowAll": false
+      },
+      {
+        "name": "Instance",
+        "label": "instance",
+        "query": "mongodb_mongod_replset_my_state{namespace=~\"{{ .Namespace }}\", set=~\"{{ .ReplicaSet }}\"}",
+        "allowAll": false
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "ReplSet State",
+        "unit": "",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "mongodb_mongod_replset_my_state{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", set=~\"{{ .ReplicaSet }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "ReplSet Members",
+        "unit": "",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "mongodb_mongod_replset_number_of_members{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", set=~\"{{ .ReplicaSet }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "ReplSet Last Election",
+        "unit": "h",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "(time() - mongodb_mongod_replset_member_election_date{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", set=~\"{{ .ReplicaSet }}\"}) / 60 / 60"
+          }
+        ]
+      },
+      {
+        "title": "ReplSet Lag",
+        "unit": "s",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "(max(mongodb_mongod_replset_member_optime_date{namespace=~\"{{ .Namespace }}\", state=\"PRIMARY\", set=~\"{{ .ReplicaSet }}\"}) - min(mongodb_mongod_replset_member_optime_date{namespace=~\"{{ .Namespace }}\", state=\"SECONDARY\"} * on (name) group_left mongodb_mongod_replset_my_name{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"})) or vector(0)"
+          }
+        ]
+      },
+      {
+        "title": "Replication Operations",
+        "unit": "ops",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .type }}",
+            "query": "rate(mongodb_op_counters_repl_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", type!~\"(command|getmore|query)\"}[5m]) or irate(mongodb_op_counters_repl_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", type!~\"(command|getmore|query)\"}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Oplog Recovery Window",
+        "unit": "h",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Now to End",
+            "query": "(time()-mongodb_mongod_replset_oplog_tail_timestamp{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}) / 60 / 60"
+          },
+          {
+            "label": "Oplog Range",
+            "query": "(mongodb_mongod_replset_oplog_head_timestamp{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}-mongodb_mongod_replset_oplog_tail_timestamp{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}) / 60 / 60"
+          }
+        ]
+      },
+      {
+        "title": "Replication Lag",
+        "unit": "s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Lag",
+            "query": "(max(mongodb_mongod_replset_member_optime_date{namespace=~\"{{ .Namespace }}\", state=\"PRIMARY\", set=~\"{{ .ReplicaSet }}\"}) - min(mongodb_mongod_replset_member_optime_date{namespace=~\"{{ .Namespace }}\", state=\"SECONDARY\"} * on (name) group_left mongodb_mongod_replset_my_name{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"})) or vector(0)"
+          }
+        ]
+      },
+      {
+        "title": "Elections",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Count",
+            "query": "max(changes(mongodb_mongod_replset_member_election_date{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]))"
+          }
+        ]
+      },
+      {
+        "title": "Member State Uptime",
+        "unit": "h",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .instance }} - {{ .state }}",
+            "query": "(mongodb_mongod_replset_member_uptime{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"} * on (name) group_right(state) (max_over_time(mongodb_mongod_replset_my_name{namespace=~\"{{ .Namespace }}\"}[5m]) or max_over_time(mongodb_mongod_replset_my_name{namespace=~\"{{ .Namespace }}\"}[5m]))) / 60 / 60"
+          }
+        ]
+      },
+      {
+        "title": "Max Heartbeat Time",
+        "unit": "s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .instance }}",
+            "query": "time() - max(mongodb_mongod_replset_member_last_heartbeat{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}) by (name) * on (name) group_right mongodb_mongod_replset_my_name{namespace=~\"{{ .Namespace }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Max Member Ping Time",
+        "unit": "ms",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .instance }}",
+            "query": "mongodb_mongod_replset_member_ping_ms{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"} * on (name) group_right(state) (max_over_time(mongodb_mongod_replset_my_name{namespace=~\"{{ .Namespace }}\"}[5m]) or max_over_time(mongodb_mongod_replset_my_name{namespace=~\"{{ .Namespace }}\"}[5m]))"
+          }
+        ]
+      },
+      {
+        "title": "Oplog Getmore Time",
+        "unit": "ms",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .instance }}",
+            "query": "rate(mongodb_mongod_metrics_repl_network_getmores_total_milliseconds{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_metrics_repl_network_getmores_total_milliseconds{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Oplog Operations",
+        "unit": "ops",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Document Preload",
+            "query": "rate(mongodb_mongod_metrics_repl_preload_docs_num_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_metrics_repl_preload_docs_num_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          },
+          {
+            "label": "Index Preload",
+            "query": "rate(mongodb_mongod_metrics_repl_preload_indexes_num_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_metrics_repl_preload_indexes_num_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          },
+          {
+            "label": "Batch Apply",
+            "query": "rate(mongodb_mongod_metrics_repl_apply_ops_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_metrics_repl_apply_ops_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Oplog Processing Time",
+        "unit": "ms",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Document Preload",
+            "query": "rate(mongodb_mongod_metrics_repl_preload_docs_total_milliseconds{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_metrics_repl_preload_docs_total_milliseconds{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          },
+          {
+            "label": "Index Preload",
+            "query": "rate(mongodb_mongod_metrics_repl_preload_indexes_total_milliseconds{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_metrics_repl_preload_indexes_total_milliseconds{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          },
+          {
+            "label": "Batch Apply",
+            "query": "rate(mongodb_mongod_metrics_repl_apply_batches_total_milliseconds{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_metrics_repl_apply_batches_total_milliseconds{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Oplog Buffered Operations",
+        "unit": "ops",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Current",
+            "query": "mongodb_mongod_metrics_repl_buffer_count{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Oplog Buffer Capacity",
+        "unit": "MiB",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Used",
+            "query": "mongodb_mongod_metrics_repl_buffer_size_bytes{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"} / 1024 / 1024"
+          },
+          {
+            "label": "Max",
+            "query": "mongodb_mongod_metrics_repl_buffer_max_size_bytes{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"} / 1024 / 1024"
+          }
+        ]
+      }
+    ]

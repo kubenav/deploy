@@ -5,7 +5,7 @@ metadata:
   name: blackbox-exporter-dashboard
   namespace: kubenav
   labels:
-    kubenav.io/dashboard: "true"
+    kubenav.io/prometheus-dashboard: "true"
 data:
   title: "Blackbox Exporter"
   description: "Dashboard for Blackbox Exporter Metrics"

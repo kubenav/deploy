@@ -5,7 +5,7 @@ metadata:
   name: jaeger-dashboard
   namespace: kubenav
   labels:
-    kubenav.io/dashboard: "true"
+    kubenav.io/prometheus-dashboard: "true"
 data:
   title: "Jaeger"
   description: "Dashboard for Jaeger Metrics"

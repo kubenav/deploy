@@ -5,7 +5,7 @@ metadata:
   name: redis-sentinel-dashboard
   namespace: kubenav
   labels:
-    kubenav.io/dashboard: "true"
+    kubenav.io/prometheus-dashboard: "true"
 data:
   title: "Redis Sentinel"
   description: "Dashboard for Redis Sentinel Metrics"

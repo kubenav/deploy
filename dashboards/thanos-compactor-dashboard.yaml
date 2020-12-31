@@ -5,7 +5,7 @@ metadata:
   name: thanos-compactor-dashboard
   namespace: kubenav
   labels:
-    kubenav.io/dashboard: "true"
+    kubenav.io/prometheus-dashboard: "true"
 data:
   title: "Thanos Compactor"
   description: "Dashboard for Thanos Compactor Metrics"

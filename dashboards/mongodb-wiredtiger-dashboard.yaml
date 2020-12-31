@@ -1,0 +1,389 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-wiredtiger-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/prometheus-dashboard: "true"
+data:
+  title: "MongoDB WiredTiger Set"
+  description: "Dashboard for MongoDB WiredTiger Metrics"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "namespace",
+        "query": "mongodb_connections",
+        "allowAll": false
+      },
+      {
+        "name": "Instance",
+        "label": "instance",
+        "query": "mongodb_mongod_storage_engine{namespace=~\"{{ .Namespace }}\", engine=\"wiredTiger\"}",
+        "allowAll": false
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "WiredTiger Cache Usage",
+        "unit": "MiB",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "mongodb_mongod_wiredtiger_cache_bytes{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", type=\"total\"} / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "WiredTiger Max Cache Size",
+        "unit": "MiB",
+        "size": {
+          "xs": "6",
+          "sm": "6",
+          "md": "6",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "mongodb_mongod_wiredtiger_cache_max_bytes{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"} / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "WiredTiger Transactions",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .type }}",
+            "query": "rate(mongodb_mongod_wiredtiger_transactions_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_wiredtiger_transactions_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "WiredTiger Cache Activity",
+        "unit": "B/s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Read into",
+            "query": "rate(mongodb_mongod_wiredtiger_cache_bytes_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", type=\"read\"}[5m]) or irate(mongodb_mongod_wiredtiger_cache_bytes_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", type=\"read\"}[5m])"
+          },
+          {
+            "label": "Written from",
+            "query": "rate(mongodb_mongod_wiredtiger_cache_bytes_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", type=\"written\"}[5m]) or irate(mongodb_mongod_wiredtiger_cache_bytes_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", type=\"written\"}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "WiredTiger Block Activity",
+        "unit": "B/s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .type }}",
+            "query": "rate(mongodb_mongod_wiredtiger_blockmanager_bytes_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_wiredtiger_blockmanager_bytes_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "WiredTiger Sessions",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Cursors",
+            "query": "mongodb_mongod_wiredtiger_session_open_cursors_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}"
+          },
+          {
+            "label": "Sessions",
+            "query": "mongodb_mongod_wiredtiger_session_open_sessions_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "WiredTiger Concurrency Tickets Available",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .type }}",
+            "query": "mongodb_mongod_wiredtiger_concurrent_transactions_total_tickets{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}-mongodb_mongod_wiredtiger_concurrent_transactions_out_tickets{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Queued Operations",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .type }}",
+            "query": "mongodb_mongod_global_lock_current_queue{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "WiredTiger Checkpoint Time",
+        "unit": "ms",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "current",
+            "query": "rate(mongodb_mongod_wiredtiger_transactions_checkpoint_milliseconds_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_wiredtiger_transactions_checkpoint_milliseconds_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          },
+          {
+            "label": "{{ .type }}",
+            "query": "mongodb_mongod_wiredtiger_transactions_checkpoint_milliseconds{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "WiredTiger Cache Eviction",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .type }}",
+            "query": "rate(mongodb_mongod_wiredtiger_cache_evicted_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_wiredtiger_cache_evicted_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "WiredTiger Cache Capacity",
+        "unit": "MiB",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Max",
+            "query": "mongodb_mongod_wiredtiger_cache_max_bytes{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"} / 1024 / 1024"
+          },
+          {
+            "label": "Used",
+            "query": "mongodb_mongod_wiredtiger_cache_bytes{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", type=\"total\"} / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "WiredTiger Cache Pages",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .type }}",
+            "query": "mongodb_mongod_wiredtiger_cache_pages{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "WiredTiger Log Operations",
+        "unit": "ops",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .type }}",
+            "query": "rate(mongodb_mongod_wiredtiger_log_operations_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_wiredtiger_log_operations_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "WiredTiger Log Activity",
+        "unit": "B/s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .type }}",
+            "query": "rate(mongodb_mongod_wiredtiger_log_bytes_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_wiredtiger_log_bytes_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "WiredTiger Log Records",
+        "unit": "ops",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .type }}",
+            "query": "rate(mongodb_mongod_wiredtiger_log_records_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_wiredtiger_log_records_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Document Changes",
+        "unit": "ops",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .state }}",
+            "query": "rate(mongodb_mongod_metrics_document_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_metrics_document_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          },
+          {
+            "label": "repl_deleted",
+            "query": "rate(mongodb_mongod_op_counters_repl_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", type=\"delete\"}[5m]) or irate(mongodb_mongod_op_counters_repl_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", type=\"delete\"}[5m])"
+          },
+          {
+            "label": "repl_updated",
+            "query": "rate(mongodb_mongod_op_counters_repl_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", type=\"update\"}[5m]) or irate(mongodb_mongod_op_counters_repl_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", type=\"update\"}[5m])"
+          },
+          {
+            "label": "repl_inserted",
+            "query": "rate(mongodb_mongod_op_counters_repl_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", type=\"insert\"}[5m]) or irate(mongodb_mongod_op_counters_repl_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", type=\"insert\"}[5m])"
+          },
+          {
+            "label": "ttl_deleted",
+            "query": "rate(mongodb_mongod_metrics_ttl_deleted_documents_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_metrics_ttl_deleted_documents_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Scanned and Moved Objects",
+        "unit": "ops",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .state }}",
+            "query": "rate(mongodb_mongod_metrics_query_executor_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_metrics_query_executor_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          },
+          {
+            "label": "moved",
+            "query": "rate(mongodb_mongod_metrics_record_moves_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_metrics_record_moves_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Page Faults",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Faults",
+            "query": "rate(mongodb_extra_info_page_faults_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_extra_info_page_faults_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          }
+        ]
+      }
+    ]

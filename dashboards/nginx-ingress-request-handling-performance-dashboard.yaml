@@ -5,7 +5,7 @@ metadata:
   name: nginx-ingress-request-handling-performance-dashboard
   namespace: kubenav
   labels:
-    kubenav.io/dashboard: "true"
+    kubenav.io/prometheus-dashboard: "true"
 data:
   title: "NGINX Ingress Controller: Request Handling Performance"
   description: "Dashboard for NGINX Ingress Controller Request Handling Performance"

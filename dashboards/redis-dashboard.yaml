@@ -5,7 +5,7 @@ metadata:
   name: redis-dashboard
   namespace: kubenav
   labels:
-    kubenav.io/dashboard: "true"
+    kubenav.io/prometheus-dashboard: "true"
 data:
   title: "Redis"
   description: "Dashboard for Redis Metrics"

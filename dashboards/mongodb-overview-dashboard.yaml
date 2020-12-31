@@ -1,0 +1,247 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-overview-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/prometheus-dashboard: "true"
+data:
+  title: "MongoDB Overview"
+  description: "Dashboard for MongoDB Metrics"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "namespace",
+        "query": "mongodb_connections",
+        "allowAll": false
+      },
+      {
+        "name": "Instance",
+        "label": "instance",
+        "query": "mongodb_connections{namespace=~\"{{ .Namespace }}\"}",
+        "allowAll": false
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "Command Operations",
+        "unit": "ops",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "12",
+          "xl": "12"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .type }}",
+            "query": "rate(mongodb_op_counters_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", type!=\"command\"}[5m]) or irate(mongodb_op_counters_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", type!=\"command\"}[5m])"
+          },
+          {
+            "label": "repl_{{ .type }}",
+            "query": "rate(mongodb_op_counters_repl_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", type!~\"(command|query|getmore)\"}[5m]) or irate(mongodb_op_counters_repl_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", type!~\"(command|query|getmore)\"}[5m])"
+          },
+          {
+            "label": "ttl_delete",
+            "query": "rate(mongodb_mongod_metrics_ttl_deleted_documents_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_metrics_ttl_deleted_documents_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Connections",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Connections",
+            "query": "mongodb_connections{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", state=\"current\"} or mongodb_connections{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", state=\"current\"}"
+          }
+        ]
+      },
+      {
+        "title": "Cursors",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .state }}",
+            "query": "mongodb_mongod_metrics_cursor_open{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"} or mongodb_mongod_cursors{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"} or mongodb_mongos_metrics_cursor_open{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"} or mongodb_mongos_cursors{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Document Operations",
+        "unit": "ops",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .state }}",
+            "query": "rate(mongodb_mongod_metrics_document_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_metrics_document_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Queued Operations",
+        "unit": "ops",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .type }}",
+            "query": "mongodb_mongod_global_lock_current_queue{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Query Efficiency",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Document",
+            "query": "sum(rate(mongodb_mongod_metrics_document_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", state=\"returned\"}[5m])) / sum(rate(mongodb_mongod_metrics_query_executor_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", state=\"scanned_objects\"}[5m])) * 100 or sum(irate(mongodb_mongod_metrics_document_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", state=\"returned\"}[5m])) / sum(irate(mongodb_mongod_metrics_query_executor_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", state=\"scanned_objects\"}[5m])) * 100"
+          },
+          {
+            "label": "Index",
+            "query": "(sum(rate(mongodb_mongod_metrics_query_executor_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", state=\"scanned\"}[5m])) / sum(rate(mongodb_mongod_metrics_query_executor_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", state=\"scanned_objects\"}[5m])) * 100 or sum(irate(mongodb_mongod_metrics_query_executor_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", state=\"scanned\"}[5m])) / sum(irate(mongodb_mongod_metrics_query_executor_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\", state=\"scanned_objects\"}[5m]))) * 100"
+          }
+        ]
+      },
+      {
+        "title": "Scanned and Moved Objects",
+        "unit": "ops",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .state }}",
+            "query": "rate(mongodb_mongod_metrics_query_executor_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_metrics_query_executor_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          },
+          {
+            "label": "moved",
+            "query": "rate(mongodb_mongod_metrics_record_moves_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_metrics_record_moves_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "getLastError Write Time",
+        "unit": "ms",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Write Wait Time",
+            "query": "rate(mongodb_mongod_metrics_get_last_error_wtime_total_milliseconds{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_metrics_get_last_error_wtime_total_milliseconds{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "getLastError Write Operations",
+        "unit": "ops",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Total",
+            "query": "rate(mongodb_mongod_metrics_get_last_error_wtime_num_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_metrics_get_last_error_wtime_num_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or rate(mongodb_mongos_metrics_get_last_error_wtime_num_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongos_metrics_get_last_error_wtime_num_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          },
+          {
+            "label": "Timeouts",
+            "query": "rate(mongodb_mongod_metrics_get_last_error_wtimeouts_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongod_metrics_get_last_error_wtimeouts_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or rate(mongodb_mongos_metrics_get_last_error_wtimeouts_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_mongos_metrics_get_last_error_wtimeouts_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Assert Events",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .type }}",
+            "query": "mongodb_asserts_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Page Faults",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Faults",
+            "query": "rate(mongodb_extra_info_page_faults_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m]) or irate(mongodb_extra_info_page_faults_total{namespace=~\"{{ .Namespace }}\", instance=~\"{{ .Instance }}\"}[5m])"
+          }
+        ]
+      }
+    ]

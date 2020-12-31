@@ -5,7 +5,7 @@ metadata:
   name: thanos-store-dashboard
   namespace: kubenav
   labels:
-    kubenav.io/dashboard: "true"
+    kubenav.io/prometheus-dashboard: "true"
 data:
   title: "Thanos Store"
   description: "Dashboard for Thanos Store Metrics"

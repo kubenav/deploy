@@ -5,7 +5,7 @@ metadata:
   name: nginx-ingress-dashboard
   namespace: kubenav
   labels:
-    kubenav.io/dashboard: "true"
+    kubenav.io/prometheus-dashboard: "true"
 data:
   title: "NGINX Ingress Controller"
   description: "Dashboard for NGINX Ingress Controller Metrics"

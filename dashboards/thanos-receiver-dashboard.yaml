@@ -5,7 +5,7 @@ metadata:
   name: thanos-receiver-dashboard
   namespace: kubenav
   labels:
-    kubenav.io/dashboard: "true"
+    kubenav.io/prometheus-dashboard: "true"
 data:
   title: "Thanos Receiver"
   description: "Dashboard for Thanos Receiver Metrics"
