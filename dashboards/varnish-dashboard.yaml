@@ -1,0 +1,265 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: varnish-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/prometheus-dashboard: "true"
+data:
+  title: "Varnish"
+  description: "Dashboard for Varnish Metrics"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "namespace",
+        "query": "varnish_main_uptime",
+        "allowAll": false
+      },
+      {
+        "name": "Pod",
+        "label": "pod",
+        "query": "varnish_main_uptime{namespace=~\"{{ .Namespace }}\"}",
+        "allowAll": true
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "Cache Hits",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(rate(varnish_main_cache_hit{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[1m])) / sum(rate(varnish_main_client_req{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[1m])) * 100"
+          }
+        ]
+      },
+      {
+        "title": "Frontend Requests",
+        "unit": "/ sec",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(irate(varnish_main_client_req{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[1m]))"
+          }
+        ]
+      },
+      {
+        "title": "Backend Requests",
+        "unit": "/ sec",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(irate(varnish_main_backend_req{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[1m]))"
+          }
+        ]
+      },
+      {
+        "title": "Sessions",
+        "unit": "/ sec",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(irate(varnish_main_sessions_total{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[1m]))"
+          }
+        ]
+      },
+      {
+        "title": "Uptime",
+        "unit": "h",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "min(varnish_main_uptime{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}) / 60 / 60"
+          }
+        ]
+      },
+      {
+        "title": "Loaded VMODs",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(varnish_main_vmods{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"})"
+          }
+        ]
+      },
+      {
+        "title": "Backends Up",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "scalar(count(varnish_backend_up{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"} == 1))"
+          }
+        ]
+      },
+      {
+        "title": "Backends Down",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "scalar(count(varnish_backend_up{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"} == 0))"
+          }
+        ]
+      },
+      {
+        "title": "Requests",
+        "unit": "reqps",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Frontend",
+            "query": "sum(irate(varnish_main_client_req{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[1m]))"
+          },
+          {
+            "label": "Backend",
+            "query": "sum(irate(varnish_main_backend_req{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[1m]))"
+          }
+        ]
+      },
+      {
+        "title": "Network",
+        "unit": "B/s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Frontend",
+            "query": "sum(irate(varnish_main_s_resp_hdrbytes{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[1m])) + sum(irate(varnish_main_s_resp_bodybytes{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[1m]))"
+          },
+          {
+            "label": "Backend",
+            "query": "sum(irate(varnish_backend_beresp_hdrbytes{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[1m])) + sum(irate(varnish_backend_beresp_bodybytes{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[1m]))"
+          }
+        ]
+      },
+      {
+        "title": "Cache Hits",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Hits",
+            "query": "avg(rate(varnish_main_cache_hit{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[1m]) / rate(varnish_main_client_req{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[1m])) * 100"
+          },
+          {
+            "label": "Misses",
+            "query": "avg(1 - (rate(varnish_main_cache_hit{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[1m]) / rate(varnish_main_client_req{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[1m]))) * 100"
+          }
+        ]
+      },
+      {
+        "title": "Cache",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Expired",
+            "query": "sum(irate(varnish_main_n_expired{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[1m]))"
+          },
+          {
+            "label": "LRU Moved",
+            "query": "sum(irate(varnish_main_n_lru_moved{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[1m]))"
+          },
+          {
+            "label": "LRU Nuked",
+            "query": "sum(irate(varnish_main_n_lru_nuked{namespace=\"{{ .Namespace }}\", pod=~\"{{ .Pod }}\"}[1m]))"
+          }
+        ]
+      }
+    ]

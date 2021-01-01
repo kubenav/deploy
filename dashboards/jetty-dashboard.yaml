@@ -1,0 +1,227 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jetty-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/prometheus-dashboard: "true"
+data:
+  title: "Jetty"
+  description: "Dashboard for Jetty Metrics"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "namespace",
+        "query": "jetty_queued_thread_pool_threads",
+        "allowAll": false
+      },
+      {
+        "name": "Pod",
+        "label": "pod",
+        "query": "jetty_queued_thread_pool_threads{namespace=~\"{{ .Namespace }}\"}",
+        "allowAll": false
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "Working Threads",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Working Threads",
+            "query": "jetty_queued_thread_pool_threads{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} - jetty_queued_thread_pool_threads_idle{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Waiting Jobs",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Waiting Jobs",
+            "query": "jetty_queued_thread_pool_jobs{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Idle Threads",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Idle Threads",
+            "query": "jetty_queued_thread_pool_threads_idle{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Thread Pool Size",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Thread Pool Size",
+            "query": "jetty_queued_thread_pool_threads{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Active Requests",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Active Requests",
+            "query": "jetty_requests_active{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Max. Active Requests",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Max. Active Requests",
+            "query": "jetty_requests_active_max{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Request Rate",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Request Rate",
+            "query": "rate(jetty_requests_total{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}[1m])"
+          }
+        ]
+      },
+      {
+        "title": "Total Requests",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Total Requests",
+            "query": "jetty_requests_total{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Avg. Request Time",
+        "unit": "s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "12",
+          "xl": "12"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Avg. Request Time",
+            "query": "rate(jetty_request_time_seconds_total{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}[1m]) / irate(jetty_requests_total{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}[1m])"
+          }
+        ]
+      },
+      {
+        "title": "Request Time",
+        "unit": "s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Request Time",
+            "query": "rate(jetty_request_time_seconds_total{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}[1m])"
+          }
+        ]
+      },
+      {
+        "title": "Max. Request Time",
+        "unit": "s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "",
+            "query": "jetty_request_time_max_seconds{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}"
+          }
+        ]
+      }
+    ]

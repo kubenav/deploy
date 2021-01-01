@@ -1,0 +1,257 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: go-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/prometheus-dashboard: "true"
+data:
+  title: "Go"
+  description: "Dashboard for Go Metrics"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "namespace",
+        "query": "go_goroutines",
+        "allowAll": false
+      },
+      {
+        "name": "Pod",
+        "label": "pod",
+        "query": "go_goroutines{namespace=~\"{{ .Namespace }}\"}",
+        "allowAll": false
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "Memory in Off-Heap",
+        "unit": "MiB",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Mspan Inuse",
+            "query": "go_memstats_mspan_inuse_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          },
+          {
+            "label": "Mspan Sys",
+            "query": "go_memstats_mspan_sys_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          },
+          {
+            "label": "Mcache Inuse",
+            "query": "go_memstats_mcache_inuse_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          },
+          {
+            "label": "Mcache Sys",
+            "query": "go_memstats_mcache_sys_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          },
+          {
+            "label": "Buck Hash Sys",
+            "query": "go_memstats_buck_hash_sys_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          },
+          {
+            "label": "GC Sys",
+            "query": "go_memstats_gc_sys_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          },
+          {
+            "label": "Other Sys",
+            "query": "go_memstats_other_sys_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          },
+          {
+            "label": "Next GC",
+            "query": "go_memstats_next_gc_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "Memory in Heap",
+        "unit": "MiB",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Alloc",
+            "query": "go_memstats_heap_alloc_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          },
+          {
+            "label": "Sys",
+            "query": "go_memstats_heap_sys_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          },
+          {
+            "label": "Idle",
+            "query": "go_memstats_heap_idle_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          },
+          {
+            "label": "Inuse",
+            "query": "go_memstats_heap_inuse_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          },
+          {
+            "label": "Released",
+            "query": "go_memstats_heap_released_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "Memory in Stack",
+        "unit": "MiB",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Inuse",
+            "query": "go_memstats_stack_inuse_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          },
+          {
+            "label": "Sys",
+            "query": "go_memstats_stack_sys_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "Used Memory",
+        "unit": "MiB",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Used Memory",
+            "query": "go_memstats_sys_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "Live Objects",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Live Objects",
+            "query": "go_memstats_mallocs_total{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} - go_memstats_frees_total{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Objects Allocated",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Objects Allocated",
+            "query": "rate(go_memstats_mallocs_total{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}[1m])"
+          }
+        ]
+      },
+      {
+        "title": "Pointer Dereferences",
+        "unit": "ops",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Pointer Dereferences",
+            "query": "rate(go_memstats_lookups_total{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}[1m])"
+          }
+        ]
+      },
+      {
+        "title": "Goroutines",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Goroutines",
+            "query": "go_goroutines{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Allocation",
+        "unit": "B/s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Allocation",
+            "query": "rate(go_memstats_alloc_bytes_total{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}[1m])"
+          }
+        ]
+      },
+      {
+        "title": "GC Duration",
+        "unit": "s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .quantile }}",
+            "query": "go_gc_duration_seconds{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}"
+          }
+        ]
+      }
+    ]

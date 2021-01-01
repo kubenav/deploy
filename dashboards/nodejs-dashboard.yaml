@@ -1,0 +1,175 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nodejs-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/prometheus-dashboard: "true"
+data:
+  title: "Node.js"
+  description: "Dashboard for Node.js Metrics"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "namespace",
+        "query": "nodejs_version_info",
+        "allowAll": false
+      },
+      {
+        "name": "Pod",
+        "label": "pod",
+        "query": "nodejs_version_info{namespace=~\"{{ .Namespace }}\"}",
+        "allowAll": false
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "Process CPU Usage",
+        "unit": "%",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "User CPU",
+            "query": "irate(process_cpu_user_seconds_total{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}[2m]) * 100"
+          },
+          {
+            "label": "Sys CPU",
+            "query": "irate(process_cpu_system_seconds_total{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}[2m]) * 100"
+          }
+        ]
+      },
+      {
+        "title": "Event Loop Lag",
+        "unit": "s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Event Loop Lag",
+            "query": "nodejs_eventloop_lag_seconds{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Process Memory Usage",
+        "unit": "MiB",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Process Memory",
+            "query": "process_resident_memory_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          },
+          {
+            "label": "Heap Total",
+            "query": "nodejs_heap_size_total_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          },
+          {
+            "label": "Heap Used",
+            "query": "nodejs_heap_size_used_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          },
+          {
+            "label": "External Memory",
+            "query": "nodejs_external_memory_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "Active Handlers/Requests Total",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Active Handlers",
+            "query": "nodejs_active_handles_total{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}"
+          },
+          {
+            "label": "Active Requests",
+            "query": "nodejs_active_requests_total{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Heap Total Detail",
+        "unit": "MiB",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .space }}",
+            "query": "nodejs_heap_space_size_total_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "Heap Used Detail",
+        "unit": "MiB",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .space }}",
+            "query": "nodejs_heap_space_size_used_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "Heap Available Detail",
+        "unit": "MiB",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .space }}",
+            "query": "nodejs_heap_space_size_available_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
+          }
+        ]
+      }
+    ]
