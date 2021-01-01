@@ -1,0 +1,179 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: strimzi-zookeeper-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/prometheus-dashboard: "true"
+data:
+  title: "Strimzi ZooKeeper"
+  description: "Dashboard for Strimzi ZooKeeper Metrics"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "namespace",
+        "query": "zookeeper_inmemorydatatree_nodecount",
+        "allowAll": false
+      },
+      {
+        "name": "Cluster",
+        "label": "strimzi_io_cluster",
+        "query": "zookeeper_inmemorydatatree_nodecount{namespace=~\"{{ .Namespace }}\"}",
+        "allowAll": true
+      },
+      {
+        "name": "Node",
+        "label": "statefulset_kubernetes_io_pod_name",
+        "query": "zookeeper_inmemorydatatree_nodecount{namespace=~\"{{ .Namespace }}\", strimzi_io_cluster=\"{{ .Cluster }}\"}",
+        "allowAll": true
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "Quorum Size",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "max(zookeeper_quorumsize{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",strimzi_io_kind=\"Kafka\"})"
+          }
+        ]
+      },
+      {
+        "title": "Alive Connections",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(zookeeper_numaliveconnections{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",strimzi_io_kind=\"Kafka\",kubernetes_pod_name=~\"{{ .Node }}\"})"
+          }
+        ]
+      },
+      {
+        "title": "Number of ZNodes",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "avg(zookeeper_inmemorydatatree_nodecount{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",strimzi_io_kind=\"Kafka\"})"
+          }
+        ]
+      },
+      {
+        "title": "Number of Watchers",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(zookeeper_inmemorydatatree_watchcount{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",strimzi_io_kind=\"Kafka\",kubernetes_pod_name=~\"{{ .Node }}\"})"
+          }
+        ]
+      },
+      {
+        "title": "Outstanding Requests",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "12",
+          "xl": "12"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "",
+            "query": "zookeeper_outstandingrequests{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",strimzi_io_kind=\"Kafka\",kubernetes_pod_name=~\"{{ .Node }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Request Latency - Minimum",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .kubernetes_pod_name }}",
+            "query": "zookeeper_minrequestlatency{namespace=~\"{{ .Namespace }}\",kubernetes_pod_name=~\"{{ .Node }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Request Latency - Average",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .kubernetes_pod_name }}",
+            "query": "zookeeper_avgrequestlatency{namespace=~\"{{ .Namespace }}\",kubernetes_pod_name=~\"{{ .Node }}\"}"
+          }
+        ]
+      },
+      {
+        "title": "Request Latency - Maximum",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .kubernetes_pod_name }}",
+            "query": "zookeeper_maxrequestlatency{namespace=~\"{{ .Namespace }}\",kubernetes_pod_name=~\"{{ .Node }}\"}"
+          }
+        ]
+      }
+    ]

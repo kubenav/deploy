@@ -1,0 +1,320 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: strimzi-operators-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/prometheus-dashboard: "true"
+data:
+  title: "Strimzi Operators"
+  description: "Dashboard for Strimzi Operators Metrics"
+  charts: |
+    [
+      {
+        "title": "Kafka CRs",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(strimzi_resources{kind=\"Kafka\"})"
+          }
+        ]
+      },
+      {
+        "title": "Connect CRs",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(strimzi_resources{kind=\"KafkaConnect\"})"
+          }
+        ]
+      },
+      {
+        "title": "Connect S2I CRs",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(strimzi_resources{kind=\"KafkaConnectS2I\"})"
+          }
+        ]
+      },
+      {
+        "title": "Mirror Maker 2 CRs",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(strimzi_resources{kind=\"KafkaMirrorMaker2\"})"
+          }
+        ]
+      },
+      {
+        "title": "Mirror Maker CRs",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(strimzi_resources{kind=\"KafkaMirrorMaker\"})"
+          }
+        ]
+      },
+      {
+        "title": "Bridge CRs",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(strimzi_resources{kind=\"KafkaBridge\"})"
+          }
+        ]
+      },
+      {
+        "title": "User CRs",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(strimzi_resources{kind=\"KafkaUser\"})"
+          }
+        ]
+      },
+      {
+        "title": "Topics CRs",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(strimzi_resources{kind=\"KafkaTopic\"})"
+          }
+        ]
+      },
+      {
+        "title": "Connector CRs",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(strimzi_resources{kind=\"KafkaConnector\"})"
+          }
+        ]
+      },
+      {
+        "title": "Rebalance CRs",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(strimzi_resources{kind=\"KafkaRebalance\"})"
+          }
+        ]
+      },
+      {
+        "title": "Successful Reconciliation per hour",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .kind }}",
+            "query": "sum(increase(strimzi_reconciliations_successful_total[1h])) by (kind)"
+          }
+        ]
+      },
+      {
+        "title": "Failed Reconciliation per hour",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .kind }}",
+            "query": "sum(increase(strimzi_reconciliations_failed_total[1h])) by (kind)"
+          }
+        ]
+      },
+      {
+        "title": "Reconciliation without Lock per hour",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .kind }}",
+            "query": "sum(increase(strimzi_reconciliations_locked_total[1h])) by (kind)"
+          }
+        ]
+      },
+      {
+        "title": "Started Reconciliation per hour",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .kind }}",
+            "query": "sum(increase(strimzi_reconciliations_total[1h])) by (kind)"
+          }
+        ]
+      },
+      {
+        "title": "Periodical Reconciliation per hour",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .kind }}",
+            "query": "sum(increase(strimzi_reconciliations_periodical_total[1h])) by (kind)"
+          }
+        ]
+      },
+      {
+        "title": "Maximum reconciliation time",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .kind }}",
+            "query": "sum(strimzi_reconciliations_duration_seconds_max) by (kind)"
+          }
+        ]
+      },
+      {
+        "title": "Average reconciliation time",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .kind }}",
+            "query": "sum(strimzi_reconciliations_duration_seconds_sum / strimzi_reconciliations_duration_seconds_count) by (kind)"
+          }
+        ]
+      }
+    ]

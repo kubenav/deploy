@@ -1,0 +1,239 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: strimzi-kafka-exporter-dashboard
+  namespace: kubenav
+  labels:
+    kubenav.io/prometheus-dashboard: "true"
+data:
+  title: "Strimzi Kafka Exporter"
+  description: "Dashboard for Strimzi Kafka Exporter Metrics"
+  variables: |
+    [
+      {
+        "name": "Namespace",
+        "label": "namespace",
+        "query": "kafka_consumergroup_current_offset",
+        "allowAll": false
+      },
+      {
+        "name": "Cluster",
+        "label": "strimzi_io_cluster",
+        "query": "kafka_consumergroup_current_offset{namespace=~\"{{ .Namespace }}\"}",
+        "allowAll": true
+      },
+      {
+        "name": "ConsumerGroup",
+        "label": "consumergroup",
+        "query": "kafka_consumergroup_current_offset{namespace=~\"{{ .Namespace }}\", strimzi_io_cluster=\"{{ .Cluster }}\"}",
+        "allowAll": true
+      },
+      {
+        "name": "Topic",
+        "label": "topic",
+        "query": "kafka_topic_partition_current_offset{namespace=~\"{{ .Namespace }}\", strimzi_io_cluster=\"{{ .Cluster }}\"}",
+        "allowAll": true
+      }
+    ]
+  charts: |
+    [
+      {
+        "title": "Topics",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "count(kafka_topic_partitions{topic=~\"{{ .Topic }}\"})"
+          }
+        ]
+      },
+      {
+        "title": "Partitions",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(kafka_topic_partitions{topic=~\"{{ .Topic }}\"})"
+          }
+        ]
+      },
+      {
+        "title": "Replicas",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(kafka_topic_partition_replicas{topic=~\"{{ .Topic }}\"})"
+          }
+        ]
+      },
+      {
+        "title": "In Sync Replicas",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(kafka_topic_partition_in_sync_replica{topic=~\"{{ .Topic }}\"})"
+          }
+        ]
+      },
+      {
+        "title": "Under Replicated Partitions",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(kafka_topic_partition_under_replicated_partition{topic=~\"{{ .Topic }}\"})"
+          }
+        ]
+      },
+      {
+        "title": "Partitions at mininimum ISR",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(kafka_cluster_partition_atminisr{topic=~\"{{ .Topic }}\"})"
+          }
+        ]
+      },
+      {
+        "title": "Partitions under mininimum ISR",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "sum(kafka_cluster_partition_underminisr{topic=~\"{{ .Topic }}\"})"
+          }
+        ]
+      },
+      {
+        "title": "Partitions not on preferred node",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "3",
+          "xl": "3"
+        },
+        "type": "singlestat",
+        "queries": [
+          {
+            "label": "",
+            "query": "count(kafka_topic_partition_leader_is_preferred{topic=~\"{{ .Topic }}\"}<1)"
+          }
+        ]
+      },
+      {
+        "title": "Messages in per second",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .topic }}",
+            "query": "sum(rate(kafka_topic_partition_current_offset{topic=~\"{{ .Topic }}\"}[1m])) by (topic)"
+          }
+        ]
+      },
+      {
+        "title": "Messages consumed per second",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .consumergroup }} (topic: {{ .topic }})",
+            "query": "sum(delta(kafka_consumergroup_current_offset{consumergroup=~\"{{ .ConsumerGroup }}\",topic=~\"{{ .Topic }}\"}[1m])/60) by (consumergroup, topic)"
+          }
+        ]
+      },
+      {
+        "title": "Lag by  Consumer Group",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .consumergroup }} (topic: {{ .topic }})",
+            "query": "sum(kafka_consumergroup_lag{consumergroup=~\"{{ .ConsumerGroup }}\",topic=~\"{{ .Topic }}\"}) by (consumergroup, topic) "
+          }
+        ]
+      }
+    ]
