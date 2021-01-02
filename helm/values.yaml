@@ -4,7 +4,7 @@ replicaCount: 1
 
 image:
   repository: kubenav/kubenav
-  tag: 3.2.0
+  tag: 3.3.0
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -19,9 +19,25 @@ deployment:
   kubeconfig:
 
 plugins:
+  # Settings for the Prometheus plugin: https://docs.kubenav.io/plugins/prometheus/
   prometheus:
     enabled: false
-    address:
+    address: "http://prometheus.monitoring.svc.cluster.local:9090"
+    username: ""
+    password: ""
+    dashboardsNamespace: kubenav
+  # Settings for the Elasticsearch plugin: https://docs.kubenav.io/plugins/elasticsearch/
+  elasticsearch:
+    enabled: false
+    address: "http://elasticsearch.logging.svc.cluster.local:9200"
+    username: ""
+    password: ""
+  # Settings for the Jaeger plugin: https://docs.kubenav.io/plugins/jaeger/
+  jaeger:
+    enabled: false
+    address: "http://jaeger-query.tracing.svc.cluster.local:16686"
+    username: ""
+    password: ""
 
 rbac:
   # Specifies whether a cluster role and cluster role binding should be created.

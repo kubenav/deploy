@@ -36,6 +36,58 @@ spec:
             {{- if .Values.plugins.prometheus.enabled }}
             - --plugin.prometheus.enabled
             - --plugin.prometheus.address={{ .Values.plugins.prometheus.address }}
+            - --plugin.prometheus.dashboards-namespace={{ .Values.plugins.prometheus.dashboardsNamespace }}
+            {{- end }}
+            {{- if .Values.plugins.elasticsearch.enabled }}
+            - --plugin.elasticsearch.enabled
+            - --plugin.elasticsearch.address={{ .Values.plugins.elasticsearch.address }}
+            {{- end }}
+            {{- if and (ne .Values.plugins.elasticsearch.username "") (ne .Values.plugins.elasticsearch.password "") }}
+            - --plugin.elasticsearch.username={{ .Values.plugins.elasticsearch.username }}
+            {{- end }}
+            {{- if .Values.plugins.jaeger.enabled }}
+            - --plugin.jaeger.enabled
+            - --plugin.jaeger.address={{ .Values.plugins.jaeger.address }}
+            {{- end }}
+            {{- if and (ne .Values.plugins.jaeger.username "") (ne .Values.plugins.jaeger.password "") }}
+            - --plugin.jaeger.username={{ .Values.plugins.jaeger.username }}
+            {{- end }}
+          env:
+            {{- if and (ne .Values.plugins.prometheus.username "") (ne .Values.plugins.prometheus.password "") }}
+            - name: KUBENAV_PROMETHEUS_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "kubenav.fullname" . }}-plugins
+                  key: KUBENAV_PROMETHEUS_USERNAME
+            - name: KUBENAV_PROMETHEUS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "kubenav.fullname" . }}-plugins
+                  key: KUBENAV_PROMETHEUS_PASSWORD
+            {{- end }}
+            {{- if and (ne .Values.plugins.elasticsearch.username "") (ne .Values.plugins.elasticsearch.password "") }}
+            - name: KUBENAV_ELASTICSEARCH_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "kubenav.fullname" . }}-plugins
+                  key: KUBENAV_ELASTICSEARCH_USERNAME
+            - name: KUBENAV_ELASTICSEARCH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "kubenav.fullname" . }}-plugins
+                  key: KUBENAV_ELASTICSEARCH_PASSWORD
+            {{- end }}
+            {{- if and (ne .Values.plugins.jaeger.username "") (ne .Values.plugins.jaeger.password "") }}
+            - name: KUBENAV_JAEGER_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "kubenav.fullname" . }}-plugins
+                  key: KUBENAV_JAEGER_USERNAME
+            - name: KUBENAV_JAEGER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "kubenav.fullname" . }}-plugins
+                  key: KUBENAV_JAEGER_PASSWORD
             {{- end }}
           ports:
             - name: http
