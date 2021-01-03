@@ -32,13 +32,13 @@ data:
       {
         "name": "Topic",
         "label": "topic",
-        "query": "kafka_cluster_partition_replicascount{namespace=~\"{{ .Namespace }}\", strimzi_io_cluster=\"{{ .Cluster }}\", kubernetes_pod_name=~\"{{ .Cluster }}-{{ .Broker }}\"}",
+        "query": "kafka_cluster_partition_replicascount{namespace=~\"{{ .Namespace }}\", strimzi_io_cluster=\"{{ .Cluster }}\", kubernetes_pod_name=~\"{{ .Broker }}\"}",
         "allowAll": true
       },
       {
         "name": "Partition",
         "label": "partition",
-        "query": "kafka_log_log_size{namespace=~\"{{ .Namespace }}\", strimzi_io_cluster=\"{{ .Cluster }}\", kubernetes_pod_name=~\"{{ .Cluster }}-{{ .Broker }}\", topic=~\"{{ .Topic }}\"}",
+        "query": "kafka_log_log_size{namespace=~\"{{ .Namespace }}\", strimzi_io_cluster=\"{{ .Cluster }}\", kubernetes_pod_name=~\"{{ .Broker }}\", topic=~\"{{ .Topic }}\"}",
         "allowAll": true
       }
     ]
@@ -153,60 +153,6 @@ data:
         ]
       },
       {
-        "title": "JVM Memory Used",
-        "unit": "MiB",
-        "size": {
-          "xs": "12",
-          "sm": "12",
-          "md": "12",
-          "lg": "4",
-          "xl": "4"
-        },
-        "type": "area",
-        "queries": [
-          {
-            "label": "{{ .kubernetes_pod_name }}",
-            "query": "sum(rate(jvm_memory_bytes_used{namespace=~\"{{ .Namespace }}\",kubernetes_pod_name=~\"{{ .Cluster }}-{{ .Broker }}\",strimzi_io_name=\"{{ .Cluster }}-kafka\"}[5m])) by (kubernetes_pod_name) / 1024 / 1024"
-          }
-        ]
-      },
-      {
-        "title": "JVM GC Time",
-        "unit": "s",
-        "size": {
-          "xs": "12",
-          "sm": "12",
-          "md": "12",
-          "lg": "4",
-          "xl": "4"
-        },
-        "type": "area",
-        "queries": [
-          {
-            "label": "{{ .kubernetes_pod_name }}",
-            "query": "sum(rate(jvm_gc_collection_seconds_sum{namespace=~\"{{ .Namespace }}\",kubernetes_pod_name=~\"{{ .Cluster }}-{{ .Broker }}\",strimzi_io_name=\"{{ .Cluster }}-kafka\"}[5m])) by (kubernetes_pod_name)"
-          }
-        ]
-      },
-      {
-        "title": "JVM GC Count",
-        "unit": "",
-        "size": {
-          "xs": "12",
-          "sm": "12",
-          "md": "12",
-          "lg": "4",
-          "xl": "4"
-        },
-        "type": "area",
-        "queries": [
-          {
-            "label": "{{ .kubernetes_pod_name }}",
-            "query": "sum(rate(jvm_gc_collection_seconds_count{namespace=~\"{{ .Namespace }}\",kubernetes_pod_name=~\"{{ .Cluster }}-{{ .Broker }}\",strimzi_io_name=\"{{ .Cluster }}-kafka\"}[5m])) by (kubernetes_pod_name)"
-          }
-        ]
-      },
-      {
         "title": "Byte Rate",
         "unit": "B",
         "size": {
@@ -220,11 +166,11 @@ data:
         "queries": [
           {
             "label": "Total Incoming Byte Rate",
-            "query": "sum(irate(kafka_server_brokertopicmetrics_bytesin_total{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",topic=~\"{{ .Topic }}\",kubernetes_pod_name=~\"{{ .Cluster }}-{{ .Broker }}\"}[1m]))"
+            "query": "sum(irate(kafka_server_brokertopicmetrics_bytesin_total{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",topic=~\"{{ .Topic }}\",kubernetes_pod_name=~\"{{ .Broker }}\"}[1m]))"
           },
           {
             "label": "Total Outgoing Byte Rate",
-            "query": "sum(irate(kafka_server_brokertopicmetrics_bytesout_total{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",topic=~\"{{ .Topic }}\",kubernetes_pod_name=~\"{{ .Cluster }}-{{ .Broker }}\"}[1m]))"
+            "query": "sum(irate(kafka_server_brokertopicmetrics_bytesout_total{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",topic=~\"{{ .Topic }}\",kubernetes_pod_name=~\"{{ .Broker }}\"}[1m]))"
           }
         ]
       },
@@ -242,7 +188,7 @@ data:
         "queries": [
           {
             "label": "Total Message In Per Second",
-            "query": "sum(irate(kafka_server_brokertopicmetrics_messagesin_total{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",topic=~\"{{ .Topic }}\",kubernetes_pod_name=~\"{{ .Cluster }}-{{ .Broker }}\"}[1m]))"
+            "query": "sum(irate(kafka_server_brokertopicmetrics_messagesin_total{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",topic=~\"{{ .Topic }}\",kubernetes_pod_name=~\"{{ .Broker }}\"}[1m]))"
           }
         ]
       },
@@ -260,11 +206,11 @@ data:
         "queries": [
           {
             "label": "Total Produce Request Rate",
-            "query": "sum(irate(kafka_server_brokertopicmetrics_totalproducerequests_total{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",topic=~\"{{ .Topic }}\",kubernetes_pod_name=~\"{{ .Cluster }}-{{ .Broker }}\"}[1m]))"
+            "query": "sum(irate(kafka_server_brokertopicmetrics_totalproducerequests_total{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",topic=~\"{{ .Topic }}\",kubernetes_pod_name=~\"{{ .Broker }}\"}[1m]))"
           },
           {
             "label": "Failed Produce Request Rate",
-            "query": "sum(irate(kafka_server_brokertopicmetrics_failedproducerequests_total{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",topic=~\"{{ .Topic }}\",kubernetes_pod_name=~\"{{ .Cluster }}-{{ .Broker }}\"}[1m]))"
+            "query": "sum(irate(kafka_server_brokertopicmetrics_failedproducerequests_total{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",topic=~\"{{ .Topic }}\",kubernetes_pod_name=~\"{{ .Broker }}\"}[1m]))"
           }
         ]
       },
@@ -282,11 +228,11 @@ data:
         "queries": [
           {
             "label": "Fetch Request Rate",
-            "query": "sum(irate(kafka_server_brokertopicmetrics_totalfetchrequests_total{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",topic=~\"{{ .Topic }}\",kubernetes_pod_name=~\"{{ .Cluster }}-{{ .Broker }}\"}[1m]))"
+            "query": "sum(irate(kafka_server_brokertopicmetrics_totalfetchrequests_total{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",topic=~\"{{ .Topic }}\",kubernetes_pod_name=~\"{{ .Broker }}\"}[1m]))"
           },
           {
             "label": "Failed Fetch Request Rate",
-            "query": "sum(irate(kafka_server_brokertopicmetrics_failedfetchrequests_total{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",topic=~\"{{ .Topic }}\",kubernetes_pod_name=~\"{{ .Cluster }}-{{ .Broker }}\"}[1m]))"
+            "query": "sum(irate(kafka_server_brokertopicmetrics_failedfetchrequests_total{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",topic=~\"{{ .Topic }}\",kubernetes_pod_name=~\"{{ .Broker }}\"}[1m]))"
           }
         ]
       },
@@ -304,7 +250,7 @@ data:
         "queries": [
           {
             "label": "{{ .kubernetes_pod_name }}",
-            "query": "kafka_network_socketserver_networkprocessoravgidle_percent{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",kubernetes_pod_name=~\"{{ .Cluster }}-{{ .Broker }}\"}*100"
+            "query": "kafka_network_socketserver_networkprocessoravgidle_percent{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",kubernetes_pod_name=~\"{{ .Broker }}\"}*100"
           }
         ]
       },
@@ -322,7 +268,7 @@ data:
         "queries": [
           {
             "label": "{{ .kubernetes_pod_name }}",
-            "query": "kafka_server_kafkarequesthandlerpool_requesthandleravgidle_percent{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",kubernetes_pod_name=~\"{{ .Cluster }}-{{ .Broker }}\"}*100"
+            "query": "kafka_server_kafkarequesthandlerpool_requesthandleravgidle_percent{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",kubernetes_pod_name=~\"{{ .Broker }}\"}*100"
           }
         ]
       },
@@ -340,7 +286,7 @@ data:
         "queries": [
           {
             "label": "{{ .topic }}:{{ .partition }}",
-            "query": "kafka_log_log_size{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",kubernetes_pod_name=~\"{{ .Cluster }}-{{ .Broker }}\",topic=~\"{{ .Topic }}\",partition=~\"{{ .Partition }}\"}"
+            "query": "kafka_log_log_size{namespace=~\"{{ .Namespace }}\",strimzi_io_cluster=\"{{ .Cluster }}\",kubernetes_pod_name=~\"{{ .Broker }}\",topic=~\"{{ .Topic }}\",partition=~\"{{ .Partition }}\"}"
           }
         ]
       }
