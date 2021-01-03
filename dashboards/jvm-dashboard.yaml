@@ -27,8 +27,8 @@ data:
   charts: |
     [
       {
-        "title": "Classes Loading Rate",
-        "unit": "",
+        "title": "Memory Usage",
+        "unit": "MiB",
         "size": {
           "xs": "12",
           "sm": "12",
@@ -39,8 +39,80 @@ data:
         "type": "area",
         "queries": [
           {
-            "label": "Class Loading Rate",
-            "query": "rate(jvm_classes_loaded{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}[1m])"
+            "label": "Memory Usage",
+            "query": "sum(container_memory_usage_bytes{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\", container!=\"\", container!=\"POD\"}) / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "CPU Usage",
+        "unit": "Cores",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "6",
+          "xl": "6"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "CP Usage",
+            "query": "sum(rate(container_cpu_user_seconds_total{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}[1m]))"
+          }
+        ]
+      },
+      {
+        "title": "Memory Used",
+        "unit": "MiB",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "Memory Used",
+            "query": "sum(rate(jvm_memory_bytes_used{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}[1m])) / 1024 / 1024"
+          }
+        ]
+      },
+      {
+        "title": "GC Time",
+        "unit": "s",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .gc }}",
+            "query": "sum(rate(jvm_gc_collection_seconds_sum{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}[1m])) by (gc)"
+          }
+        ]
+      },
+      {
+        "title": "GC Count",
+        "unit": "",
+        "size": {
+          "xs": "12",
+          "sm": "12",
+          "md": "12",
+          "lg": "4",
+          "xl": "4"
+        },
+        "type": "area",
+        "queries": [
+          {
+            "label": "{{ .gc }}",
+            "query": "sum(rate(jvm_gc_collection_seconds_count{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}[1m])) by (gc)"
           }
         ]
       },
@@ -57,121 +129,13 @@ data:
         "type": "area",
         "queries": [
           {
-            "label": "Total Loaded Classes",
-            "query": "jvm_classes_loaded{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}"
+            "label": "Classes",
+            "query": "sum(jvm_classes_loaded{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"})"
           }
         ]
       },
       {
-        "title": "Garbage Collection Duration",
-        "unit": "s",
-        "size": {
-          "xs": "12",
-          "sm": "12",
-          "md": "12",
-          "lg": "6",
-          "xl": "6"
-        },
-        "type": "area",
-        "queries": [
-          {
-            "label": "{{ .gc }}",
-            "query": "rate(jvm_gc_collection_seconds_sum{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}[1m])"
-          }
-        ]
-      },
-      {
-        "title": "Garbage Collection Operations",
-        "unit": "ops",
-        "size": {
-          "xs": "12",
-          "sm": "12",
-          "md": "12",
-          "lg": "6",
-          "xl": "6"
-        },
-        "type": "area",
-        "queries": [
-          {
-            "label": "{{ .gc }}",
-            "query": "rate(jvm_gc_collection_seconds_count{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}[1m])"
-          }
-        ]
-      },
-      {
-        "title": "Memory Max.",
-        "unit": "MiB",
-        "size": {
-          "xs": "12",
-          "sm": "12",
-          "md": "12",
-          "lg": "6",
-          "xl": "6"
-        },
-        "type": "area",
-        "queries": [
-          {
-            "label": "{{ .area }}",
-            "query": "jvm_memory_bytes_max{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
-          }
-        ]
-      },
-      {
-        "title": "Memory Used",
-        "unit": "MiB",
-        "size": {
-          "xs": "12",
-          "sm": "12",
-          "md": "12",
-          "lg": "6",
-          "xl": "6"
-        },
-        "type": "area",
-        "queries": [
-          {
-            "label": "{{ .area }}",
-            "query": "jvm_memory_bytes_used{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
-          }
-        ]
-      },
-      {
-        "title": "Memory Pool Max.",
-        "unit": "MiB",
-        "size": {
-          "xs": "12",
-          "sm": "12",
-          "md": "12",
-          "lg": "6",
-          "xl": "6"
-        },
-        "type": "area",
-        "queries": [
-          {
-            "label": "{{ .pool }}",
-            "query": "jvm_memory_pool_bytes_max{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
-          }
-        ]
-      },
-      {
-        "title": "Memory Pool Used ",
-        "unit": "MiB",
-        "size": {
-          "xs": "12",
-          "sm": "12",
-          "md": "12",
-          "lg": "6",
-          "xl": "6"
-        },
-        "type": "area",
-        "queries": [
-          {
-            "label": "{{ .pool }}",
-            "query": "jvm_memory_pool_bytes_used{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"} / 1024 / 1024"
-          }
-        ]
-      },
-      {
-        "title": "Threads",
+        "title": "Thread Count",
         "unit": "",
         "size": {
           "xs": "12",
@@ -184,25 +148,7 @@ data:
         "queries": [
           {
             "label": "Threads",
-            "query": "jvm_threads_current{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}"
-          }
-        ]
-      },
-      {
-        "title": "Threads Peak",
-        "unit": "",
-        "size": {
-          "xs": "12",
-          "sm": "12",
-          "md": "12",
-          "lg": "6",
-          "xl": "6"
-        },
-        "type": "area",
-        "queries": [
-          {
-            "label": "Threads Peak",
-            "query": "jvm_threads_peak{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"}"
+            "query": "sum(jvm_threads_current{namespace=\"{{ .Namespace }}\", pod=\"{{ .Pod }}\"})"
           }
         ]
       }
